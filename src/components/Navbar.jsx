@@ -15,7 +15,7 @@ export default function Navbar() {
         <nav className="navbar">
             <div className="navbar-container">
                 <Link to="/" className="navbar-logo">
-                    <span className="logo-icon">🇲🇽</span>
+                    <img src="/nacionmx-postulaciones/logo.png" alt="Nación MX Logo" className="logo-img" />
                     <span className="logo-text">Nación MX</span>
                 </Link>
 

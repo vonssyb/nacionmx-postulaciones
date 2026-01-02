@@ -15,14 +15,37 @@ export function getDiscordAuthUrl() {
 
 // Parsear la respuesta de Discord del hash de la URL o search params (fallback para GH Pages)
 export function parseDiscordCallback() {
-    const hash = window.location.hash.substring(1)
-    const hashParams = new URLSearchParams(hash)
+    // Cuando usamos HashRouter, el hash real de Discord puede quedar al final o mezclado
+    // Ejemplo: #/callback#access_token=... o simplemente #access_token=...
+    const fullHash = window.location.hash
     const searchParams = new URLSearchParams(window.location.search)
 
+    // Función para buscar en una cadena tipo URLSearchParams
+    const findInString = (str, key) => {
+        const params = new URLSearchParams(str.replace(/^#/, '').replace(/^[?]/, ''))
+        return params.get(key)
+    }
+
+    // Buscamos en el hash completo (puede contener múltiples #)
+    const getToken = (key) => {
+        // Intentar en search params normales
+        let val = searchParams.get(key)
+        if (val) return val
+
+        // Intentar splitear por # y buscar en cada parte
+        const parts = fullHash.split('#')
+        for (const part of parts) {
+            if (!part) continue
+            val = findInString(part, key)
+            if (val) return val
+        }
+        return null
+    }
+
     return {
-        accessToken: hashParams.get('access_token') || searchParams.get('access_token'),
-        tokenType: hashParams.get('token_type') || searchParams.get('token_type'),
-        expiresIn: hashParams.get('expires_in') || searchParams.get('expires_in'),
+        accessToken: getToken('access_token'),
+        tokenType: getToken('token_type'),
+        expiresIn: getToken('expires_in'),
     }
 }
 
