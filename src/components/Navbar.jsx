@@ -16,7 +16,7 @@ export default function Navbar() {
         <nav className="navbar">
             <div className="navbar-container">
                 <Link to="/" className="navbar-logo">
-                    <img src="logo.png" alt="Nación MX Logo" className="logo-img" />
+                    <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Nación MX Logo" className="logo-img" />
                     <span className="logo-text">Nación MX</span>
                 </Link>
 
