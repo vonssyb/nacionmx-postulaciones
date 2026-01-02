@@ -8,14 +8,15 @@ export default function Navbar() {
 
     const handleLogout = () => {
         logout()
-        window.location.href = '/'
+        // Ir a la raíz del subdirectorio del sitio
+        window.location.href = window.location.pathname.split('/').slice(0, 2).join('/') + '/'
     }
 
     return (
         <nav className="navbar">
             <div className="navbar-container">
                 <Link to="/" className="navbar-logo">
-                    <img src="/nacionmx-postulaciones/logo.png" alt="Nación MX Logo" className="logo-img" />
+                    <img src="logo.png" alt="Nación MX Logo" className="logo-img" />
                     <span className="logo-text">Nación MX</span>
                 </Link>
 
