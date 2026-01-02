@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getSavedUser } from '../services/discord'
 import { getRobloxUserByUsername } from '../services/roblox'
@@ -13,7 +13,9 @@ export default function Apply() {
     const [canApply, setCanApply] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
     const [questions, setQuestions] = useState([])
+    const [currentStep, setCurrentStep] = useState(0)
     const [formData, setFormData] = useState({})
+
     const [robloxUsername, setRobloxUsername] = useState('')
     const [robloxData, setRobloxData] = useState(null)
     const [robloxError, setRobloxError] = useState('')
@@ -26,20 +28,41 @@ export default function Apply() {
         }
 
         async function checkEligibility() {
-            const eligible = await canUserApply(savedUser.user.id)
-            setCanApply(eligible)
+            try {
+                const eligible = await canUserApply(savedUser.user.id)
+                setCanApply(eligible)
 
-            if (!eligible) {
-                setErrorMessage('Ya tienes una postulación activa o estás en periodo de espera.')
+                if (!eligible) {
+                    setErrorMessage('Ya tienes una postulación activa o estás en periodo de espera.')
+                }
+
+                const questionsData = await getApplicationQuestions()
+                setQuestions(questionsData)
+            } catch (err) {
+                console.error(err)
+                setErrorMessage('Error al cargar la información. Intenta de nuevo.')
+            } finally {
+                setLoading(false)
             }
-
-            const questionsData = await getApplicationQuestions()
-            setQuestions(questionsData)
-            setLoading(false)
         }
 
         checkEligibility()
     }, [savedUser, navigate])
+
+    // Agrupar preguntas por secciones
+    const sections = useMemo(() => {
+        const groups = {}
+        questions.forEach(q => {
+            const sectionTitle = q.section_title || 'General'
+            if (!groups[sectionTitle]) {
+                groups[sectionTitle] = []
+            }
+            groups[sectionTitle].push(q)
+        })
+        return Object.entries(groups).map(([title, qs]) => ({ title, questions: qs }))
+    }, [questions])
+
+    const totalSteps = sections.length + 1 // +1 for Roblox Verification
 
     const handleRobloxVerify = async () => {
         if (!robloxUsername.trim()) {
@@ -65,43 +88,44 @@ export default function Apply() {
         }))
     }
 
-    const validateForm = () => {
-        for (const question of questions) {
-            if (question.required && !formData[question.question_key]) {
+    const validateCurrentStep = () => {
+        if (currentStep === 0) {
+            if (!robloxData) return 'Debes vincular tu cuenta de Roblox'
+            return null
+        }
+
+        const currentSection = sections[currentStep - 1]
+        for (const question of currentSection.questions) {
+            if (question.required && (!formData[question.question_key] || formData[question.question_key].toString().trim() === '')) {
                 return `El campo "${question.question_text}" es obligatorio`
             }
-
-            const rules = question.validation_rules || {}
-            const value = formData[question.question_key]
-
-            if (rules.minLength && value?.length < rules.minLength) {
-                return `"${question.question_text}" debe tener al menos ${rules.minLength} caracteres`
-            }
-
-            if (rules.maxLength && value?.length > rules.maxLength) {
-                return `"${question.question_text}" no puede exceder ${rules.maxLength} caracteres`
-            }
-
-            if (rules.min && value < rules.min) {
-                return `"${question.question_text}" debe ser al menos ${rules.min}`
-            }
-
-            if (rules.max && value > rules.max) {
-                return `"${question.question_text}" no puede ser mayor a ${rules.max}`
-            }
         }
-
-        if (!robloxData) {
-            return 'Debes vincular tu cuenta de Roblox'
-        }
-
         return null
+    }
+
+    const nextStep = () => {
+        const error = validateCurrentStep()
+        if (error) {
+            alert(error)
+            return
+        }
+        if (currentStep < totalSteps - 1) {
+            setCurrentStep(prev => prev + 1)
+            window.scrollTo(0, 0)
+        }
+    }
+
+    const prevStep = () => {
+        if (currentStep > 0) {
+            setCurrentStep(prev => prev - 1)
+            window.scrollTo(0, 0)
+        }
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        const error = validateForm()
+        const error = validateCurrentStep()
         if (error) {
             alert(error)
             return
@@ -111,18 +135,17 @@ export default function Apply() {
 
         const applicationData = {
             discord_id: savedUser.user.id,
-            discord_username: savedUser.user.tag,
+            discord_username: savedUser.user.username,
             discord_avatar: savedUser.user.avatar,
             roblox_id: robloxData.id,
             roblox_username: robloxData.username,
             roblox_display_name: robloxData.displayName,
-            ...formData,
+            custom_answers: formData // Guardamos todo en el JSONB
         }
 
         const result = await createApplication(applicationData)
 
         if (result.success) {
-            alert('¡Postulación enviada con éxito! Recibirás una notificación en Discord cuando sea revisada.')
             navigate('/status')
         } else {
             alert(`Error al enviar postulación: ${result.error}`)
@@ -133,7 +156,8 @@ export default function Apply() {
     if (loading) {
         return (
             <div className="apply-container">
-                <div className="loading">Cargando formulario...</div>
+                <div className="loading-spinner"></div>
+                <p>Cargando sistema de seguridad...</p>
             </div>
         )
     }
@@ -141,11 +165,11 @@ export default function Apply() {
     if (!canApply) {
         return (
             <div className="apply-container">
-                <div className="error-message">
-                    <h2>❌ No puedes postularte</h2>
+                <div className="glass-card error-status">
+                    <h2>ACCESO DENEGADO</h2>
                     <p>{errorMessage}</p>
                     <button onClick={() => navigate('/')} className="btn-primary">
-                        Volver al inicio
+                        Regresar a la Base
                     </button>
                 </div>
             </div>
@@ -154,112 +178,145 @@ export default function Apply() {
 
     return (
         <div className="apply-container">
-            <div className="apply-card">
-                <h1>Postulación para Staff</h1>
-                <p className="subtitle">Completa todos los campos requeridos</p>
+            <div className="apply-stepper">
+                <div className="progress-bar">
+                    <div
+                        className="progress-fill"
+                        style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
+                    ></div>
+                </div>
+                <div className="step-indicator">
+                    Paso {currentStep + 1} de {totalSteps}
+                </div>
+            </div>
 
-                <form onSubmit={handleSubmit} className="application-form">
-                    {/* Vinculación de Roblox */}
-                    <div className="form-section">
-                        <h2>🎮 Cuenta de Roblox</h2>
-                        <div className="roblox-verify">
-                            <input
-                                type="text"
-                                value={robloxUsername}
-                                onChange={(e) => setRobloxUsername(e.target.value)}
-                                placeholder="Tu username de Roblox"
-                                className="input-field"
-                            />
-                            <button
-                                type="button"
-                                onClick={handleRobloxVerify}
-                                className="btn-secondary"
-                            >
-                                Verificar
-                            </button>
-                        </div>
+            <div className="glass-card apply-form-card">
+                <form onSubmit={handleSubmit}>
+                    {currentStep === 0 && (
+                        <div className="step-section animation-slide-in">
+                            <div className="section-header">
+                                <span className="section-badge">00</span>
+                                <h2>VERIFICACIÓN DE IDENTIDAD</h2>
+                                <p>Vincula tu cuenta de Roblox para continuar.</p>
+                            </div>
 
-                        {robloxError && (
-                            <p className="error-text">{robloxError}</p>
-                        )}
-
-                        {robloxData && (
-                            <div className="roblox-verified">
-                                <span className="verified-icon">✅</span>
-                                <div>
-                                    <strong>{robloxData.displayName}</strong> (@{robloxData.username})
-                                    <br />
-                                    <small>ID: {robloxData.id}</small>
+                            <div className="roblox-verify-box">
+                                <div className="input-group">
+                                    <label>Username de Roblox</label>
+                                    <div className="input-with-button">
+                                        <input
+                                            type="text"
+                                            value={robloxUsername}
+                                            onChange={(e) => setRobloxUsername(e.target.value)}
+                                            placeholder="Ingresa tu usuario"
+                                            className="premium-input"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleRobloxVerify}
+                                            className="btn-verify"
+                                        >
+                                            VERIFICAR
+                                        </button>
+                                    </div>
                                 </div>
+
+                                {robloxError && <p className="error-text">{robloxError}</p>}
+
+                                {robloxData && (
+                                    <div className="roblox-profile animation-fade-in">
+                                        <div className="profile-check">✓</div>
+                                        <div className="profile-details">
+                                            <h3>{robloxData.displayName}</h3>
+                                            <span>@{robloxData.username}</span>
+                                            <small>ID: {robloxData.id}</small>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
+                        </div>
+                    )}
+
+                    {currentStep > 0 && sections[currentStep - 1] && (
+                        <div className="step-section animation-slide-in" key={currentStep}>
+                            <div className="section-header">
+                                <span className="section-badge">{currentStep < 10 ? `0${currentStep}` : currentStep}</span>
+                                <h2>{sections[currentStep - 1].title}</h2>
+                            </div>
+
+                            <div className="questions-grid">
+                                {sections[currentStep - 1].questions.map((q) => (
+                                    <div key={q.id} className="form-group">
+                                        <label>
+                                            {q.question_text}
+                                            {q.required && <span className="req">*</span>}
+                                        </label>
+
+                                        {q.question_type === 'text' && (
+                                            <input
+                                                type="text"
+                                                value={formData[q.question_key] || ''}
+                                                onChange={(e) => handleInputChange(q.question_key, e.target.value)}
+                                                placeholder={q.placeholder}
+                                                className="premium-input"
+                                            />
+                                        )}
+
+                                        {q.question_type === 'number' && (
+                                            <input
+                                                type="number"
+                                                value={formData[q.question_key] || ''}
+                                                onChange={(e) => handleInputChange(q.question_key, e.target.value)}
+                                                placeholder={q.placeholder}
+                                                className="premium-input"
+                                            />
+                                        )}
+
+                                        {q.question_type === 'textarea' && (
+                                            <textarea
+                                                value={formData[q.question_key] || ''}
+                                                onChange={(e) => handleInputChange(q.question_key, e.target.value)}
+                                                placeholder={q.placeholder}
+                                                rows={4}
+                                                className="premium-input premium-textarea"
+                                            />
+                                        )}
+
+                                        {q.question_type === 'select' && (
+                                            <select
+                                                value={formData[q.question_key] || ''}
+                                                onChange={(e) => handleInputChange(q.question_key, e.target.value)}
+                                                className="premium-input"
+                                            >
+                                                <option value="">Seleccionar...</option>
+                                                {q.validation_rules?.options?.map(opt => (
+                                                    <option key={opt} value={opt}>{opt}</option>
+                                                ))}
+                                            </select>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="form-actions">
+                        {currentStep > 0 && (
+                            <button type="button" onClick={prevStep} className="btn-secondary">
+                                ANTERIOR
+                            </button>
+                        )}
+
+                        {currentStep < totalSteps - 1 ? (
+                            <button type="button" onClick={nextStep} className="btn-primary">
+                                SIGUIENTE
+                            </button>
+                        ) : (
+                            <button type="submit" disabled={submitting} className="btn-primary btn-submit">
+                                {submitting ? 'TRANSMITIENDO...' : 'ENVIAR POSTULACIÓN'}
+                            </button>
                         )}
                     </div>
-
-                    {/* Preguntas dinámicas */}
-                    <div className="form-section">
-                        <h2>📋 Información General</h2>
-                        {questions.map((question) => (
-                            <div key={question.id} className="form-group">
-                                <label>
-                                    {question.question_text}
-                                    {question.required && <span className="required">*</span>}
-                                </label>
-
-                                {question.question_type === 'text' && (
-                                    <input
-                                        type="text"
-                                        value={formData[question.question_key] || ''}
-                                        onChange={(e) => handleInputChange(question.question_key, e.target.value)}
-                                        placeholder={question.placeholder}
-                                        className="input-field"
-                                    />
-                                )}
-
-                                {question.question_type === 'number' && (
-                                    <input
-                                        type="number"
-                                        value={formData[question.question_key] || ''}
-                                        onChange={(e) => handleInputChange(question.question_key, e.target.value)}
-                                        placeholder={question.placeholder}
-                                        className="input-field"
-                                    />
-                                )}
-
-                                {question.question_type === 'textarea' && (
-                                    <textarea
-                                        value={formData[question.question_key] || ''}
-                                        onChange={(e) => handleInputChange(question.question_key, e.target.value)}
-                                        placeholder={question.placeholder}
-                                        rows={5}
-                                        className="input-field"
-                                    />
-                                )}
-
-                                {question.question_type === 'select' && (
-                                    <select
-                                        value={formData[question.question_key] || ''}
-                                        onChange={(e) => handleInputChange(question.question_key, e.target.value)}
-                                        className="input-field"
-                                    >
-                                        <option value="">Selecciona una opción</option>
-                                        {question.validation_rules?.options?.map((option) => (
-                                            <option key={option} value={option}>
-                                                {option}
-                                            </option>
-                                        ))}
-                                    </select>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={submitting}
-                        className="btn-primary btn-submit"
-                    >
-                        {submitting ? 'Enviando...' : 'Enviar Postulación'}
-                    </button>
                 </form>
             </div>
         </div>

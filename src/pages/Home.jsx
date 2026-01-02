@@ -16,57 +16,85 @@ export default function Home() {
 
     return (
         <div className="home-container">
-            <div className="hero-section">
-                <div className="hero-content">
-                    <h1 className="hero-title">
-                        <span className="gradient-text">Únete al Staff</span>
-                        <br />
-                        de Nación MX
-                    </h1>
+            <div className="hero-section animation-fade-in">
+                <div className="hero-badge">SISTEMA DE SEGURIDAD NACIONAL</div>
 
-                    <p className="hero-description">
-                        ¿Tienes lo que se necesita para ser parte del equipo? Postúlate ahora
-                        y ayúdanos a construir la mejor comunidad de roleplay en Roblox.
-                    </p>
-
-                    <button onClick={handleLogin} className="btn-primary">
-                        <img
-                            src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6ca814282eca7172c6_icon_clyde_white_RGB.svg"
-                            alt="Discord"
-                            className="discord-icon"
-                        />
-                        {savedUser ? 'Ir a Postulación' : 'Iniciar con Discord'}
-                    </button>
-
-                    <div className="features">
-                        <div className="feature-card">
-                            <span className="feature-icon">📋</span>
-                            <h3>Proceso Simple</h3>
-                            <p>Formulario rápido y fácil de completar</p>
-                        </div>
-
-                        <div className="feature-card">
-                            <span className="feature-icon">⚡</span>
-                            <h3>Respuesta Rápida</h3>
-                            <p>Revisamos postulaciones en 24-48 horas</p>
-                        </div>
-
-                        <div className="feature-card">
-                            <span className="feature-icon">🎯</span>
-                            <h3>Requisitos Claros</h3>
-                            <p>Sabemos exactamente lo que buscamos</p>
-                        </div>
+                <div className="hero-main-content">
+                    <div className="hero-logo-container">
+                        <img src="logo.png" alt="Nación MX Elite" className="hero-premium-logo" />
+                        <div className="logo-glow"></div>
                     </div>
 
-                    <div className="requirements">
-                        <h2>Requisitos Mínimos</h2>
-                        <ul>
-                            <li>✅ Tener al menos 13 años de edad</li>
-                            <li>✅ Cuenta de Discord y Roblox activas</li>
-                            <li>✅ Disponibilidad mínima de 5 horas semanales</li>
-                            <li>✅ Experiencia en roleplay (deseable)</li>
-                            <li>✅ Actitud positiva y ganas de aprender</li>
-                        </ul>
+                    <div className="hero-text">
+                        <h1 className="hero-title">
+                            <span className="accent-text">POSTULACIONES</span>
+                            <br />
+                            STAFF NACIÓN MX
+                        </h1>
+
+                        <p className="hero-description">
+                            Buscamos a los ciudadanos más capacitados para mantener el orden
+                            y la excelencia en nuestra patria. ¿Tienes lo necesario para el servicio?
+                        </p>
+
+                        <div className="hero-actions">
+                            <button onClick={handleLogin} className="btn-primary btn-hero">
+                                <img
+                                    src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6ca814282eca7172c6_icon_clyde_white_RGB.svg"
+                                    alt="Discord"
+                                    className="discord-icon"
+                                />
+                                {savedUser ? 'ACCEDER AL TERMINAL' : 'INGRESAR CON DISCORD'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="features-grid">
+                    <div className="glass-card feature-item">
+                        <div className="feature-id">01</div>
+                        <h3>MÓDULOS DE ÉLITE</h3>
+                        <p>Evaluación integral de 10 secciones para medir tu disciplina y conocimientos.</p>
+                    </div>
+                    <div className="glass-card feature-item">
+                        <div className="feature-id">02</div>
+                        <h3>RESPUESTA TÁCTICA</h3>
+                        <p>Nuestros oficiales de reclutamiento revisarán tu expediente en tiempo récord.</p>
+                    </div>
+                    <div className="glass-card feature-item">
+                        <div className="feature-id">03</div>
+                        <h3>SERVICIO PATRIÓTICO</h3>
+                        <p>Forma parte de la estructura jerárquica más estable del roleplay en Roblox.</p>
+                    </div>
+                </div>
+
+                <div className="glass-card requirements-box">
+                    <div className="req-header">
+                        <h2>PROTOCOLO DE REQUERIMIENTOS</h2>
+                        <div className="status-indicator">SISTEMA ACTIVO</div>
+                    </div>
+                    <div className="req-list">
+                        <div className="req-item">
+                            <span className="req-check">✓</span>
+                            <div>
+                                <strong>REQUISITO DE EDAD</strong>
+                                <p>Haber cumplido al menos 13 años (OOC).</p>
+                            </div>
+                        </div>
+                        <div className="req-item">
+                            <span className="req-check">✓</span>
+                            <div>
+                                <strong>REGISTRO FEDERAL</strong>
+                                <p>Cuentas de Discord y Roblox vinculadas y activas.</p>
+                            </div>
+                        </div>
+                        <div className="req-item">
+                            <span className="req-check">✓</span>
+                            <div>
+                                <strong>DISPONIBILIDAD OPERATIVA</strong>
+                                <p>Mínimo 5 horas semanales de patrullaje/admin.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

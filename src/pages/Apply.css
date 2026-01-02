@@ -1,140 +1,239 @@
 .apply-container {
-    max-width: 900px;
+    padding: 2rem 0;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 2rem;
+    width: 100%;
 }
 
-.apply-card {
-    background: var(--bg-card);
-    padding: 3rem;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-
-.subtitle {
-    color: var(--text-secondary);
+.apply-stepper {
     margin-bottom: 2rem;
+    text-align: center;
 }
 
-.application-form {
+.progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    box-shadow: 0 0 15px var(--primary-glow);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-indicator {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.apply-form-card {
+    padding: 3rem;
+    min-height: 400px;
+}
+
+.section-header {
+    margin-bottom: 2.5rem;
+}
+
+.section-badge {
+    display: inline-block;
+    background: rgba(14, 165, 233, 0.15);
+    color: var(--primary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    border: 1px solid var(--primary);
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.section-header p {
+    color: var(--text-dim);
+}
+
+/* Roblox Verify Box */
+.roblox-verify-box {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.input-with-button {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.premium-input {
+    flex: 1;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+}
+
+.premium-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.2);
+    background: rgba(15, 23, 42, 1);
+}
+
+.premium-textarea {
+    resize: none;
+}
+
+.btn-verify {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.btn-verify:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+.roblox-profile {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 10px;
+}
+
+.profile-check {
+    width: 40px;
+    height: 40px;
+    background: var(--success);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.profile-details h3 {
+    font-size: 1.1rem;
+}
+
+.profile-details span {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+}
+
+.profile-details small {
+    display: block;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.75rem;
+}
+
+/* Questions Grid */
+.questions-grid {
     display: flex;
     flex-direction: column;
     gap: 2rem;
 }
 
-.form-section {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 2rem;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.form-section h2 {
-    margin-bottom: 1.5rem;
+.form-group {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 0.5rem;
 }
 
-.roblox-verify {
-    display: flex;
-    gap: 1rem;
-}
-
-.roblox-verified {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-    padding: 1rem;
-    background: rgba(0, 255, 136, 0.1);
-    border-radius: 8px;
-    border: 1px solid var(--primary);
-}
-
-.verified-icon {
-    font-size: 2rem;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
 .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
-.required {
-    color: #ff4444;
-    margin-left: 0.25rem;
-}
-
-.input-field {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: var(--text-primary);
     font-size: 1rem;
-    transition: all 0.3s;
+    font-weight: 500;
+    color: var(--text-main);
 }
 
-.input-field:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+.req {
+    color: var(--error);
+    margin-left: 4px;
 }
 
-textarea.input-field {
-    resize: vertical;
-    font-family: inherit;
+/* Form Actions */
+.form-actions {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-secondary {
-    padding: 0.75rem 1.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: all 0.3s;
+    background: transparent;
+    border: 1px solid var(--border-glass);
+    color: var(--text-dim);
+    padding: 0.8rem 1.8rem;
+    border-radius: 10px;
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
 }
 
-.btn-submit {
-    margin-top: 1rem;
-    width: 100%;
-    padding: 1.25rem;
-    font-size: 1.1rem;
+.animation-slide-in {
+    animation: slideIn 0.5s ease-out;
 }
 
-.error-text {
-    color: #ff4444;
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
+.animation-fade-in {
+    animation: fadeIn 0.3s ease-in;
 }
 
-.error-message {
-    text-align: center;
-    padding: 3rem;
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-.error-message h2 {
-    margin-bottom: 1rem;
-}
-
-@media (max-width: 768px) {
-    .apply-card {
+@media (max-width: 600px) {
+    .apply-form-card {
         padding: 1.5rem;
     }
 
-    .roblox-verify {
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .input-with-button {
         flex-direction: column;
+    }
+
+    .btn-verify {
+        padding: 0.8rem;
     }
 }
