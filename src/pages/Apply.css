@@ -1,0 +1,140 @@
+.apply-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.apply-card {
+    background: var(--bg-card);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.application-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.form-section {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-section h2 {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.roblox-verify {
+    display: flex;
+    gap: 1rem;
+}
+
+.roblox-verified {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(0, 255, 136, 0.1);
+    border-radius: 8px;
+    border: 1px solid var(--primary);
+}
+
+.verified-icon {
+    font-size: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.required {
+    color: #ff4444;
+    margin-left: 0.25rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+}
+
+textarea.input-field {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.btn-secondary {
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-submit {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 1.25rem;
+    font-size: 1.1rem;
+}
+
+.error-text {
+    color: #ff4444;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.error-message {
+    text-align: center;
+    padding: 3rem;
+}
+
+.error-message h2 {
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .apply-card {
+        padding: 1.5rem;
+    }
+
+    .roblox-verify {
+        flex-direction: column;
+    }
+}
