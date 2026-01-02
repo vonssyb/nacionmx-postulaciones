@@ -13,15 +13,16 @@ export function getDiscordAuthUrl() {
     return `https://discord.com/api/oauth2/authorize?${params.toString()}`
 }
 
-// Parsear la respuesta de Discord del hash de la URL
+// Parsear la respuesta de Discord del hash de la URL o search params (fallback para GH Pages)
 export function parseDiscordCallback() {
     const hash = window.location.hash.substring(1)
-    const params = new URLSearchParams(hash)
+    const hashParams = new URLSearchParams(hash)
+    const searchParams = new URLSearchParams(window.location.search)
 
     return {
-        accessToken: params.get('access_token'),
-        tokenType: params.get('token_type'),
-        expiresIn: params.get('expires_in'),
+        accessToken: hashParams.get('access_token') || searchParams.get('access_token'),
+        tokenType: hashParams.get('token_type') || searchParams.get('token_type'),
+        expiresIn: hashParams.get('expires_in') || searchParams.get('expires_in'),
     }
 }
 
