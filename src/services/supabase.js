@@ -75,3 +75,48 @@ export async function getApplicationQuestions() {
         return []
     }
 }
+// --- ADMIN FUNCTIONS ---
+
+// Obtener todas las postulaciones (para staff)
+export async function getApplications(filters = {}) {
+    try {
+        let query = supabase
+            .from('staff_applications')
+            .select('*')
+            .order('created_at', { ascending: false })
+
+        if (filters.status) {
+            query = query.eq('status', filters.status)
+        }
+
+        const { data, error } = await query
+
+        if (error) throw error
+        return data
+    } catch (error) {
+        console.error('Error fetching applications:', error)
+        return []
+    }
+}
+
+// Actualizar el estado de una postulación
+export async function updateApplicationStatus(applicationId, updateData) {
+    try {
+        const { data, error } = await supabase
+            .from('staff_applications')
+            .update({
+                ...updateData,
+                updated_at: new Date().toISOString(),
+                reviewed_at: new Date().toISOString()
+            })
+            .eq('id', applicationId)
+            .select()
+            .single()
+
+        if (error) throw error
+        return { success: true, data }
+    } catch (error) {
+        console.error('Error updating application status:', error)
+        return { success: false, error: error.message }
+    }
+}

@@ -24,6 +24,7 @@ export default function Navbar() {
                     <Link to="/" className="nav-link">Inicio</Link>
                     {user && <Link to="/apply" className="nav-link">Postular</Link>}
                     {user && <Link to="/status" className="nav-link">Mi Postulación</Link>}
+                    {user && <Link to="/admin" className="nav-link admin-link">Admin</Link>}
                 </div>
 
                 <div className="navbar-user">

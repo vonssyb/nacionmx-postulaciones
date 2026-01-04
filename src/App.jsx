@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Callback from './pages/Callback'
 import Apply from './pages/Apply'
 import Status from './pages/Status'
+import Admin from './pages/Admin'
 import './App.css'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
             <Route path="/callback" element={<Callback />} />
             <Route path="/apply" element={<Apply />} />
             <Route path="/status" element={<Status />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
         </main>
       </div>
