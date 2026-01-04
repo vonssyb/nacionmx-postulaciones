@@ -25,8 +25,8 @@
     display: flex;
     align-items: center;
     gap: 4rem;
-    max-width: 1300px;
-    width: 100%;
+    max-width: 1400px;
+    width: 95%;
 }
 
 .hero-logo-container {
@@ -98,9 +98,9 @@
 .features-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 1300px;
+    gap: 2rem;
+    width: 95%;
+    max-width: 1400px;
 }
 
 .feature-item {
@@ -138,10 +138,10 @@
 
 /* Requirements Box */
 .requirements-box {
-    width: 100%;
-    max-width: 1300px;
-    padding: 2.5rem;
-    margin-top: 1rem;
+    width: 95%;
+    max-width: 1400px;
+    padding: 3rem;
+    margin-top: 2rem;
 }
 
 .req-header {
