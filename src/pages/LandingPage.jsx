@@ -29,8 +29,37 @@ export default function LandingPage() {
         };
         checkUser();
 
-        // 2. Real Stats (Optional - using placeholders for now to ensure speed)
-        // You can implement real counts here if needed
+        // 2. Real Stats Fetch
+        const fetchStats = async () => {
+            try {
+                // Count Total Applications
+                const { count: totalApps } = await supabase
+                    .from('applications')
+                    .select('*', { count: 'exact', head: true });
+
+                // Count Approved (for rate)
+                const { count: approvedApps } = await supabase
+                    .from('applications')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'approved');
+
+                // Count "Active Staff" (Approximation: Users in 'profiles' with staff role, or just a static base + approved)
+                // For now, let's use a base number + new approvals to show growth
+                const baseStaff = 12;
+                const realStaff = baseStaff + (approvedApps || 0);
+
+                const rate = totalApps ? Math.round((approvedApps / totalApps) * 100) : 0;
+
+                setStats({
+                    totalApplications: totalApps || 0,
+                    activeStaff: realStaff,
+                    approvalRate: rate
+                });
+            } catch (error) {
+                console.error("Error fetching stats:", error);
+            }
+        };
+        fetchStats();
     }, []);
 
     return (
@@ -81,6 +110,15 @@ export default function LandingPage() {
                                     Dashboard
                                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#FFD700] group-hover:w-full transition-all duration-300"></span>
                                 </Link>
+                                {user && (
+                                    <Link
+                                        to="/admin"
+                                        className="text-gray-300 hover:text-[#DC143C] transition-all duration-300 relative group font-semibold"
+                                    >
+                                        Admin Panel
+                                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#DC143C] group-hover:w-full transition-all duration-300"></span>
+                                    </Link>
+                                )}
                             </div>
 
                             {/* User Status */}
@@ -111,10 +149,10 @@ export default function LandingPage() {
                         </div>
                     </div>
                 </div>
-            </nav>
+            </nav >
 
             {/* Hero Section */}
-            <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
+            < div className="relative z-10 max-w-7xl mx-auto px-6 py-20" >
                 <div className="text-center mb-16">
                     <div className="inline-block mb-4">
                         <div className="px-4 py-2 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-full text-[#FFD700] text-sm font-medium backdrop-blur-sm">
@@ -289,10 +327,10 @@ export default function LandingPage() {
                         ))}
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* Footer */}
-            <div className="relative z-10 border-t border-white/10 mt-20">
+            < div className="relative z-10 border-t border-white/10 mt-20" >
                 <div className="max-w-7xl mx-auto px-6 py-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-gray-400 text-sm">
@@ -323,7 +361,7 @@ export default function LandingPage() {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
