@@ -1,29 +1,23 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import Callback from './pages/Callback'
-import Apply from './pages/Apply'
-import Status from './pages/Status'
-import Admin from './pages/Admin'
-import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import AuthCallback from './components/auth/AuthCallback';
+import LandingPage from './pages/LandingPage';
+import ApplyPage from './pages/ApplyPage';
 
 function App() {
   return (
-    <Router basename="/nacionmx-postulaciones">
-      <div className="app">
-        <Navbar />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/callback" element={<Callback />} />
-            <Route path="/apply" element={<Apply />} />
-            <Route path="/status" element={<Status />} />
-            <Route path="/admin" element={<Admin />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
-  )
+    <BrowserRouter basename="/nacionmx-postulaciones">
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/aplicar" element={<ApplyPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard/*" element={<Dashboard />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="*" element={<LandingPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

@@ -1,136 +1,42 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;600;700&family=Inter:wght@400;500;600&display=swap');
-
-:root {
-  /* Color Palette - Elite Security Premium */
-  --primary: #0ea5e9;
-  --primary-glow: rgba(14, 165, 233, 0.4);
-  --secondary: #6366f1;
-  --bg-dark: #020617;
-  --bg-card: rgba(15, 23, 42, 0.4);
-  --border-glass: rgba(255, 255, 255, 0.08);
-  --text-main: #f8fafc;
-  --text-dim: #94a3b8;
-  --text-muted: #64748b;
-  --success: #10b981;
-  --error: #ef4444;
-  --warning: #f59e0b;
-
-  /* Glassmorphism Effects */
-  --glass-bg: blur(20px) saturate(200%);
-  --glass-border: 1px solid var(--border-glass);
-  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
-  --glow-accent: 0 0 15px rgba(14, 165, 233, 0.2);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Outfit', sans-serif;
-  background-color: var(--bg-dark);
-  background-image:
-    radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.15) 0, transparent 40%),
-    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.12) 0, transparent 40%),
-    radial-gradient(at 50% 100%, rgba(14, 165, 233, 0.1) 0, transparent 40%),
-    linear-gradient(rgba(2, 6, 23, 0.8), rgba(2, 6, 23, 0.8)),
-    url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-  color: var(--text-main);
-  min-height: 100vh;
-  line-height: 1.6;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
-.app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.main-content {
-  flex: 1;
-  padding: 2rem 3%;
-  /* Use percentage-based padding for scale */
-  width: 100%;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* Center children */
-  animation: fadeIn 0.4s ease-out;
-}
-
-.apply-container {
-  padding: 2rem 0;
-  max-width: 1300px;
-  /* Much wider for form sections */
+#root {
+  max-width: 1280px;
   margin: 0 auto;
-  width: 100%;
+  padding: 2rem;
+  text-align: center;
 }
 
-h1,
-h2,
-h3 {
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-button {
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 0.8rem 1.8rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 14px 0 var(--primary-glow);
-  font-size: 1rem;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
-  box-shadow: 0 6px 22px 0 var(--primary-glow);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-primary:disabled {
-  background: var(--text-dim);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-  opacity: 0.5;
-}
-
-@keyframes fadeIn {
+@keyframes logo-spin {
   from {
-    opacity: 0;
-    transform: translateY(10px);
+    transform: rotate(0deg);
   }
-
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: rotate(360deg);
   }
 }
 
-/* Common Glass Card */
-.glass-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-bg);
-  -webkit-backdrop-filter: var(--glass-bg);
-  border: var(--glass-border);
-  border-radius: 16px;
-  box-shadow: var(--card-shadow);
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
 }

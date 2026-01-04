@@ -1,0 +1,170 @@
+[
+    {
+        "category": "I. NORMAS GENERALES DE CONVIVENCIA (OOC)",
+        "description": "El objetivo es mantener un ambiente de respeto, inclusivo y maduro (Fuera de Personaje/Out of Character - OOC).",
+        "rules": [
+            {
+                "title": "1. Edad Mínima",
+                "description": "Prohibido el acceso a menores de 13 años. Si se detecta un usuario menor, será expulsado y reportado a Discord."
+            },
+            {
+                "title": "2. Conducta y Respeto",
+                "description": "No Toxicidad: Queda terminantemente prohibido el uso de lenguaje vulgar, insultos, provocaciones o burlas. Mantén la calma y el respeto.\n\nCero Discriminación: No se tolerará ningún comentario o acto de discriminación, racismo, clasismo, homofobia o cualquier tipo de odio. Sanción inmediata.\n\nAcoso: No presionar, intimidar, hostigar o contactar persistentemente a otros usuarios o miembros del Staff por MD."
+            },
+            {
+                "title": "3. Suplantación de Identidad",
+                "description": "Hacerse pasar por otro usuario, miembro del Staff o Bot del servidor es motivo de Ban Permanente."
+            }
+        ]
+    },
+    {
+        "category": "II. REGLAS DE DISCORD Y TÉCNICAS (OOC)",
+        "description": "Normas relativas al uso de la plataforma, canales y cuentas.",
+        "rules": [
+            {
+                "title": "1. Spam, Flood y Contenido Explícito",
+                "description": "Spam y Flood: Prohibido envío excesivo/repetitivo.\nPublicidad: Prohibida sin permiso.\nContenido NSFW/Gore: Absolutamente prohibido (+18)."
+            },
+            {
+                "title": "2. Uso de Menciones (@) y MDs",
+                "description": "No usar @everyone/@here sin razón. Evita mencionar al Staff sin necesidad (usa Tickets). Prohibido molestar por MD."
+            },
+            {
+                "title": "3. Multicuentas y Bots",
+                "description": "Multicuentas no permitidas (Sanción a ambas si es evasión). Bots solo en canales designados."
+            },
+            {
+                "title": "4. Canales y Escritura",
+                "description": "Usa el canal correcto. No abuses de mayúsculas. CH-ON: Solo canales marcados como Rol Activo son IC."
+            }
+        ]
+    },
+    {
+        "category": "III. CÓDIGO DE CONDUCTA ROLERA (IC)",
+        "description": "Reglas para mantener la calidad y la inmersión del Roleplay.",
+        "rules": [
+            {
+                "title": "IRL-X (Irrealismo Extremo)",
+                "description": "Hacer cosas imposibles o fuera de toda lógica humana o física. Prohibición absoluta."
+            },
+            {
+                "title": "CXM (Cruce de Metas)",
+                "description": "Utilizar conocimiento OOC para obtener ventaja IC."
+            },
+            {
+                "title": "SCN (Sin Contexto de Nocaut)",
+                "description": "Ignorar o minimizar choques o heridas graves. Rolear lesiones es obligatorio."
+            },
+            {
+                "title": "VLV (Valorar la Vida)",
+                "description": "Tu personaje debe actuar como si su vida tuviera valor real."
+            },
+            {
+                "title": "CDI (Conducción de Impacto)",
+                "description": "Manejar sin respetar física o como si el vehículo fuera indestructible."
+            },
+            {
+                "title": "SAV (Saltos de Adrenalina Voluntaria)",
+                "description": "Brincar o correr descontroladamente para evitar riesgo."
+            },
+            {
+                "title": "INTX (Interferencia Externa)",
+                "description": "Meterse en roles activos sin justificación."
+            },
+            {
+                "title": "FOR-R (Forzar Realidad Rolera)",
+                "description": "Obligar a alguien a aceptar una acción sin consentimiento ni contexto."
+            },
+            {
+                "title": "ARX (Arresto Exprés)",
+                "description": "Detener sin proceso ni causa."
+            },
+            {
+                "title": "MAT-R (Muerte al Azar)",
+                "description": "Eliminar a otro jugador sin motivo (RDM). Castigado con dureza."
+            },
+            {
+                "title": "ROL-X (Contenido Explícito)",
+                "description": "Rol sexual o insinuaciones prohibidas. Cero tolerancia."
+            },
+            {
+                "title": "BXG (Bug Exploit Grave)",
+                "description": "Aprovechar bugs para ventaja."
+            },
+            {
+                "title": "RANK-F (Rango Fantasma)",
+                "description": "Acceder a cargos sin proceso de selección."
+            },
+            {
+                "title": "MD-R (Mensaje Directo Rolero)",
+                "description": "MD IC solo válido si se declara explícitamente y hay justificación."
+            },
+            {
+                "title": "FXP (Ficción Prohibida)",
+                "description": "Sin poderes mágicos o crossovers. Rol humano y realista."
+            },
+            {
+                "title": "ID-K (Robo de Identidad)",
+                "description": "No copiar personajes existentes (reales/ficticios)."
+            },
+            {
+                "title": "EXR (Exceso de Realidad Alterna)",
+                "description": "Acciones no pueden desafiar leyes físicas/médicas."
+            },
+            {
+                "title": "IDC (Identidad y Documentación)",
+                "description": "Todo ciudadano debe portar ID y mostrarlo a oficiales. No destruir ID sin rol."
+            },
+            {
+                "title": "MVP (Memoria Volátil Parcial - PK)",
+                "description": "Olvidas solo lo relacionado a la muerte. Esperar 5-7 mins para reaparecer."
+            },
+            {
+                "title": "FEC (Fin de Existencia Completa - CK)",
+                "description": "Muerte definitiva. Se pierde todo. Nuevo personaje obligatorio."
+            },
+            {
+                "title": "OLR (Olvido Rol Reciente)",
+                "description": "Tras PK/CK no puedes recordar eventos previos."
+            },
+            {
+                "title": "NOC-CK",
+                "description": "EMS/Bomberos/DOT en servicio no pueden sufrir CK."
+            },
+            {
+                "title": "TK-V (Team Kill Válido)",
+                "description": "Permitido solo con rol previo y aprobación si es sensible."
+            },
+            {
+                "title": "CRX-1 (Crimen Bajo Impacto)",
+                "description": "Robos menores permitidos a todos (tienen lógica y no spam)."
+            },
+            {
+                "title": "CRX-2 (Crimen Alto Impacto)",
+                "description": "Solo carteles pueden hacer atentados, tomas de territorio, etc."
+            }
+        ]
+    },
+    {
+        "category": "IV. INTERACCIÓN CON EL STAFF",
+        "description": "Reglas de interacción con moderación.",
+        "rules": [
+            {
+                "title": "Respeto y Obediencia",
+                "description": "Obligatorio acatar indicaciones. Desacato (STA-5) sancionable."
+            },
+            {
+                "title": "Canales de Reporte",
+                "description": "Usar #solicitar-mod o Tickets. No detener rol para reportar (STA-1)."
+            },
+            {
+                "title": "STA-2 (Supervisión en Escena)",
+                "description": "Solo el mod puede pausar/cancelar escena."
+            },
+            {
+                "title": "STA-4 (Drones)",
+                "description": "No molestar a staff en 'duty' de observación."
+            }
+        ]
+    }
+]
