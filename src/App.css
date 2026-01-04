@@ -1,23 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  /* Color Palette - High Security Premium */
+  /* Color Palette - Elite Security Premium */
   --primary: #0ea5e9;
   --primary-glow: rgba(14, 165, 233, 0.4);
   --secondary: #6366f1;
   --bg-dark: #020617;
-  --bg-card: rgba(15, 23, 42, 0.6);
-  --border-glass: rgba(255, 255, 255, 0.1);
+  --bg-card: rgba(15, 23, 42, 0.4);
+  --border-glass: rgba(255, 255, 255, 0.08);
   --text-main: #f8fafc;
   --text-dim: #94a3b8;
+  --text-muted: #64748b;
   --success: #10b981;
   --error: #ef4444;
   --warning: #f59e0b;
 
   /* Glassmorphism Effects */
-  --glass-bg: blur(16px) saturate(180%);
+  --glass-bg: blur(20px) saturate(200%);
   --glass-border: 1px solid var(--border-glass);
-  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+  --glow-accent: 0 0 15px rgba(14, 165, 233, 0.2);
 }
 
 * {
@@ -30,13 +32,16 @@ body {
   font-family: 'Outfit', sans-serif;
   background-color: var(--bg-dark);
   background-image:
-    radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.15) 0, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.12) 0, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(14, 165, 233, 0.08) 0, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.15) 0, transparent 40%),
+    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.12) 0, transparent 40%),
+    radial-gradient(at 50% 100%, rgba(14, 165, 233, 0.1) 0, transparent 40%),
+    linear-gradient(rgba(2, 6, 23, 0.8), rgba(2, 6, 23, 0.8)),
+    url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
   color: var(--text-main);
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .app {
@@ -48,7 +53,7 @@ body {
 .main-content {
   flex: 1;
   padding: 2rem 1.5rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   width: 100%;
   animation: fadeIn 0.4s ease-out;

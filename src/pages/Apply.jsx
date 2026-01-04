@@ -49,20 +49,28 @@ export default function Apply() {
         checkEligibility()
     }, [savedUser, navigate])
 
-    // Agrupar preguntas por secciones
+    // Grupar preguntas por secciones y ordenarlas
     const sections = useMemo(() => {
         const groups = {}
         questions.forEach(q => {
             const sectionTitle = q.section_title || 'General'
-            if (!groups[sectionTitle]) {
-                groups[sectionTitle] = []
+            const sectionId = q.section_id || 99
+            if (!groups[sectionId]) {
+                groups[sectionId] = { id: sectionId, title: sectionTitle, questions: [] }
             }
-            groups[sectionTitle].push(q)
+            groups[sectionId].questions.push(q)
         })
-        return Object.entries(groups).map(([title, qs]) => ({ title, questions: qs }))
+
+        // Ordenar secciones por ID y preguntas por order_index
+        return Object.values(groups)
+            .sort((a, b) => a.id - b.id)
+            .map(section => ({
+                ...section,
+                questions: section.questions.sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+            }))
     }, [questions])
 
-    const totalSteps = sections.length + 1 // +1 for Roblox Verification
+    const totalSteps = sections.length + 2 // +1 for Roblox, +1 for Final Review
 
     const handleRobloxVerify = async () => {
         if (!robloxUsername.trim()) {
@@ -90,14 +98,20 @@ export default function Apply() {
 
     const validateCurrentStep = () => {
         if (currentStep === 0) {
-            if (!robloxData) return 'Debes vincular tu cuenta de Roblox'
+            if (!robloxData) return 'Debes vincular tu cuenta de Roblox para continuar.'
             return null
         }
 
+        // Si es el paso de revisión final, no hay validación
+        if (currentStep === totalSteps - 1) return null
+
         const currentSection = sections[currentStep - 1]
+        if (!currentSection) return null
+
         for (const question of currentSection.questions) {
-            if (question.required && (!formData[question.question_key] || formData[question.question_key].toString().trim() === '')) {
-                return `El campo "${question.question_text}" es obligatorio`
+            const value = formData[question.question_key]
+            if (question.required && (!value || value.toString().trim() === '')) {
+                return `El campo "${question.question_text}" es obligatorio.`
             }
         }
         return null
@@ -237,19 +251,20 @@ export default function Apply() {
                         </div>
                     )}
 
-                    {currentStep > 0 && sections[currentStep - 1] && (
+                    {currentStep > 0 && currentStep <= sections.length && (
                         <div className="step-section animation-slide-in" key={currentStep}>
                             <div className="section-header">
                                 <span className="section-badge">{currentStep < 10 ? `0${currentStep}` : currentStep}</span>
                                 <h2>{sections[currentStep - 1].title}</h2>
+                                <p className="section-subtitle">Pregunta {sections[currentStep - 1].questions[0]?.order_index || 0} a {sections[currentStep - 1].questions[sections[currentStep - 1].questions.length - 1]?.order_index || 0}</p>
                             </div>
 
                             <div className="questions-grid">
                                 {sections[currentStep - 1].questions.map((q) => (
-                                    <div key={q.id} className="form-group">
-                                        <label>
+                                    <div key={q.id} className="form-group premium-field-box">
+                                        <label className="premium-label">
                                             {q.question_text}
-                                            {q.required && <span className="req">*</span>}
+                                            {q.required && <span className="req-star">*</span>}
                                         </label>
 
                                         {q.question_type === 'text' && (
@@ -257,7 +272,7 @@ export default function Apply() {
                                                 type="text"
                                                 value={formData[q.question_key] || ''}
                                                 onChange={(e) => handleInputChange(q.question_key, e.target.value)}
-                                                placeholder={q.placeholder}
+                                                placeholder={q.placeholder || 'Escribe tu respuesta...'}
                                                 className="premium-input"
                                             />
                                         )}
@@ -267,7 +282,7 @@ export default function Apply() {
                                                 type="number"
                                                 value={formData[q.question_key] || ''}
                                                 onChange={(e) => handleInputChange(q.question_key, e.target.value)}
-                                                placeholder={q.placeholder}
+                                                placeholder={q.placeholder || '0'}
                                                 className="premium-input"
                                             />
                                         )}
@@ -276,7 +291,7 @@ export default function Apply() {
                                             <textarea
                                                 value={formData[q.question_key] || ''}
                                                 onChange={(e) => handleInputChange(q.question_key, e.target.value)}
-                                                placeholder={q.placeholder}
+                                                placeholder={q.placeholder || 'Desarrolla tu respuesta aquí...'}
                                                 rows={4}
                                                 className="premium-input premium-textarea"
                                             />
@@ -288,14 +303,54 @@ export default function Apply() {
                                                 onChange={(e) => handleInputChange(q.question_key, e.target.value)}
                                                 className="premium-input"
                                             >
-                                                <option value="">Seleccionar...</option>
-                                                {q.validation_rules?.options?.map(opt => (
+                                                <option value="">Seleccionar una opción...</option>
+                                                {(q.options || q.validation_rules?.options)?.map(opt => (
                                                     <option key={opt} value={opt}>{opt}</option>
                                                 ))}
                                             </select>
                                         )}
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {currentStep === totalSteps - 1 && (
+                        <div className="step-section animation-slide-in">
+                            <div className="section-header">
+                                <span className="section-badge">FIN</span>
+                                <h2>REVISIÓN FINAL</h2>
+                                <p>Por favor, revisa tus respuestas antes de enviar la postulación oficial.</p>
+                            </div>
+
+                            <div className="review-summary">
+                                <div className="review-item-group">
+                                    <h3>Información de Identidad</h3>
+                                    <div className="review-stat">
+                                        <span>Roblox:</span>
+                                        <strong>{robloxData.displayName} (@{robloxData.username})</strong>
+                                    </div>
+                                    <div className="review-stat">
+                                        <span>Discord:</span>
+                                        <strong>{savedUser.user.username}</strong>
+                                    </div>
+                                </div>
+
+                                {sections.map(section => (
+                                    <div key={section.id} className="review-item-group">
+                                        <h3>{section.title}</h3>
+                                        {section.questions.map(q => (
+                                            <div key={q.id} className="review-q-row">
+                                                <span className="q-text">{q.question_text}:</span>
+                                                <span className="q-ans">{formData[q.question_key] || <i>No respondido</i>}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="warning-box glass-card">
+                                <p>⚠️ Al presionar enviar, tu postulación será revisada por el equipo de Recursos Humanos. No podrás editarla posteriormente.</p>
                             </div>
                         </div>
                     )}
