@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Shield, BookOpen, FileText, Settings, LogOut, Users, Skull, Clock, DollarSign } from 'lucide-react';
+import { Shield, FileText, Settings, LogOut } from 'lucide-react';
 import { supabase } from '../../services/supabase';
-import { useDiscordMember } from '../auth/RoleGuard'; // Import Context Hook
+import { useDiscordMember } from '../auth/RoleGuard';
 import './MainLayout.css';
 
 const MainLayout = () => {
     const navigate = useNavigate();
-    const memberData = useDiscordMember(); // Get data from RoleGuard
+    const memberData = useDiscordMember();
 
     const [profile, setProfile] = useState({
         username: 'Usuario',
@@ -16,10 +16,8 @@ const MainLayout = () => {
     });
 
     useEffect(() => {
-        // Calculate profile data from Context immediately
         if (memberData && memberData.user) {
-            let username = memberData.nick || memberData.user.username; // Use nick or username
-
+            let username = memberData.nick || memberData.user.username;
             let avatar = null;
             if (memberData.user.avatar) {
                 avatar = `https://cdn.discordapp.com/avatars/${memberData.user.id}/${memberData.user.avatar}.png`;
@@ -35,12 +33,11 @@ const MainLayout = () => {
             else if (myRoles.includes('1412887079612059660')) roleLabel = 'Staff';
             else if (myRoles.includes('1412887167654690908')) roleLabel = 'Staff Ent.';
 
-            setProfile({ username, role: roleLabel, avatar, debugRoles: myRoles });
+            setProfile({ username, role: roleLabel, avatar });
         }
     }, [memberData]);
 
     const handleLogout = async () => {
-        // Clear cache on logout
         sessionStorage.clear();
         await supabase.auth.signOut();
         navigate('/login');
@@ -52,41 +49,18 @@ const MainLayout = () => {
                 <div className="sidebar-header">
                     <Shield size={32} color="var(--primary)" />
                     <span className="sidebar-title">NACIÓN MX</span>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Portal de Postulaciones</p>
                 </div>
 
                 <nav className="nav-links">
                     <NavLink to="/dashboard" end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                         <FileText size={20} />
-                        <span>Registros</span>
-                    </NavLink>
-                    <NavLink to="/dashboard/staff" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Users size={20} />
-                        <span>Staff Hub</span>
-                    </NavLink>
-                    <NavLink to="/dashboard/cancellations" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <LogOut size={20} />
-                        <span>Cancelar Rol</span>
-                    </NavLink>
-
-                    <NavLink to="/dashboard/applications" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <FileText size={20} />
                         <span>Solicitudes</span>
                     </NavLink>
-                    <NavLink to="/dashboard/rules" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <BookOpen size={20} />
-                        <span>Reglamento</span>
-                    </NavLink>
+                    
                     <NavLink to="/dashboard/admin" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                         <Settings size={20} />
                         <span>Admin</span>
-                    </NavLink>
-                    <NavLink to="/dashboard/shift" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Clock size={20} />
-                        <span>Fichar Turno</span>
-                    </NavLink>
-                    <NavLink to="/dashboard/bank" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <DollarSign size={20} />
-                        <span>Banco</span>
                     </NavLink>
                 </nav>
 
