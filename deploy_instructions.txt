@@ -1,0 +1,37 @@
+====================================
+🚀 INSTRUCCIONES DE DEPLOYMENT
+====================================
+
+IMPORTANTE: Estos comandos van en la TERMINAL, NO en SQL Editor
+
+Abre tu Terminal (Aplicación Terminal en Mac) y ejecuta:
+
+Paso 1:
+-------
+supabase login
+
+(Esto abrirá tu navegador para hacer login)
+
+
+Paso 2:
+-------
+cd /Users/gonzalez/Documents/nacionmx/nacionmx-postulaciones
+
+
+Paso 3:
+-------
+supabase link --project-ref igjedwdxqwkpbgrmtrrq
+
+
+Paso 4:
+-------
+supabase functions deploy verify-roblox
+
+
+====================================
+¡Y LISTO!
+====================================
+
+La función estará en:
+https://igjedwdxqwkpbgrmtrrq.supabase.co/functions/v1/verify-roblox
+
