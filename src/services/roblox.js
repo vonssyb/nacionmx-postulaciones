@@ -1,6 +1,6 @@
 /**
- * Roblox Verification Service - Uses existing Discord verification data
- * Queries Supabase for already verified Roblox accounts
+ * Roblox Verification Service - Real database lookup
+ * Queries Supabase for verified Roblox accounts from Discord
  */
 
 import { supabase } from './supabase';
@@ -10,49 +10,58 @@ import { supabase } from './supabase';
  */
 export const getVerifiedRobloxFromDiscord = async (discordId) => {
   try {
+    console.log('🔍 Searching for Roblox verification for Discord ID:', discordId);
+
     // Check citizens table first (main verification table)
     const { data: citizen, error: citizenError } = await supabase
       .from('citizens')
-      .select('roblox_username, roblox_id')
+      .select('*')
       .eq('discord_id', discordId)
-      .single();
+      .maybeSingle();
 
-    if (!citizenError && citizen && citizen.roblox_username) {
+    console.log('Citizens query result:', { citizen, citizenError });
+
+    if (citizen && citizen.roblox_username) {
+      console.log('✅ Found in citizens table:', citizen.roblox_username);
       return {
         verified: true,
         username: citizen.roblox_username,
-        id: citizen.roblox_id,
+        id: citizen.roblox_id || null,
         source: 'citizens',
-        message: 'Cuenta verificada desde Discord'
+        message: 'Cuenta verificada desde Discord (/verificar)'
       };
     }
 
     // Fallback: check profiles table
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('roblox_username')
+      .select('*')
       .eq('discord_id', discordId)
-      .single();
+      .maybeSingle();
 
-    if (!profileError && profile && profile.roblox_username) {
+    console.log('Profiles query result:', { profile, profileError });
+
+    if (profile && profile.roblox_username) {
+      console.log('✅ Found in profiles table:', profile.roblox_username);
       return {
         verified: true,
         username: profile.roblox_username,
-        id: null,
+        id: profile.roblox_id || null,
         source: 'profiles',
         message: 'Cuenta verificada desde Discord'
       };
     }
 
     // Not verified yet
+    console.log('❌ No Roblox verification found');
     return {
       verified: false,
-      error: 'No tienes una cuenta de Roblox verificada en Discord. Usa /verificar en el servidor.',
+      error: 'No tienes una cuenta de Roblox verificada. Usa /verificar en Discord primero.',
       needsVerification: true
     };
 
   } catch (error) {
-    console.error('Error fetching verified Roblox:', error);
+    console.error('❌ Error fetching verified Roblox:', error);
     return {
       verified: false,
       error: 'Error al buscar verificación: ' + error.message
@@ -61,40 +70,13 @@ export const getVerifiedRobloxFromDiscord = async (discordId) => {
 };
 
 /**
- * Manual verification fallback (for users not yet verified in Discord)
+ * Manual verification fallback - DO NOT USE, should always verify from Discord
  */
 export const verifyRobloxManual = async (username) => {
-  try {
-    if (!username || username.trim().length === 0) {
-      throw new Error('Por favor ingresa tu nombre de usuario de Roblox');
-    }
-
-    const cleaned = username.trim();
-    
-    if (cleaned.length < 3 || cleaned.length > 20) {
-      throw new Error('El nombre de usuario debe tener entre 3 y 20 caracteres');
-    }
-
-    if (!/^[a-zA-Z0-9_]+$/.test(cleaned)) {
-      throw new Error('El nombre de usuario solo puede contener letras, números y guiones bajos');
-    }
-
-    return {
-      verified: true,
-      id: null,
-      username: cleaned,
-      displayName: cleaned,
-      accountAge: null,
-      created: null,
-      isBanned: false,
-      description: 'Verificación manual - Pendiente de confirmación'
-    };
-  } catch (error) {
-    return {
-      verified: false,
-      error: error.message
-    };
-  }
+  return {
+    verified: false,
+    error: 'Debes verificar tu cuenta de Roblox en Discord usando /verificar primero'
+  };
 };
 
 /**
