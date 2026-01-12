@@ -47,12 +47,25 @@ export const verifyRobloxWithCode = async (username, verificationCode) => {
 };
 
 /**
- * Get Roblox avatar
+ * Get Roblox avatar headshot
  */
-export const getRobloxAvatar = (userId) => {
-  if (!userId) {
-    return `https://ui-avatars.com/api/?name=R&background=0D8ABC&color=fff&size=150&bold=true`;
+export const getRobloxAvatar = async (userId) => {
+  if (!userId) return null;
+
+  try {
+    // Modern Thumbnails API
+    const response = await fetch(
+      `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=true`
+    );
+    const data = await response.json();
+
+    if (data.data && data.data.length > 0) {
+      return data.data[0].imageUrl;
+    }
+  } catch (err) {
+    console.error('[ROBLOX] Error fetching thumbnail:', err);
   }
-  // Same URL format as bot
-  return `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150&format=png`;
+
+  // Return null so the UI can use the custom placeholder
+  return null;
 };

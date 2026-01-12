@@ -50,7 +50,7 @@ const ApplyPage = () => {
   const checkDiscordAuth = async () => {
     setLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
-    
+
     if (!session) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
@@ -97,10 +97,12 @@ const ApplyPage = () => {
     const result = await verifyRobloxWithCode(robloxUsername, verificationCode);
 
     if (result.verified) {
-      const avatar = await getRobloxAvatar(result.id);
+      // Fetch avatar headshot
+      const avatarUrl = await getRobloxAvatar(result.id);
+
       setRobloxData({
         ...result,
-        avatar
+        avatar: avatarUrl
       });
       setFeedback({ type: 'success', text: '✅ Cuenta verificada correctamente' });
     } else {
@@ -203,7 +205,7 @@ VERIFICACIÓN:
       if (error) throw error;
 
       setFeedback({ type: 'success', text: '¡Postulación enviada con éxito! Recibirás una respuesta pronto.' });
-      
+
       setTimeout(() => {
         navigate('/');
       }, 3000);
@@ -236,7 +238,7 @@ VERIFICACIÓN:
           const Icon = step.icon;
           const isActive = currentStep === step.id;
           const isCompleted = currentStep > step.id;
-          
+
           return (
             <div key={step.id} style={styles.stepWrapper}>
               <div style={{
@@ -277,7 +279,7 @@ VERIFICACIÓN:
           <div style={styles.stepContent}>
             <h2>Verificación de Discord</h2>
             <p style={styles.stepDesc}>Tu cuenta de Discord ha sido verificada automáticamente</p>
-            
+
             {discordData && (
               <div style={styles.verifiedCard}>
                 <img src={discordData.avatar} alt="Avatar" style={styles.avatar} />
@@ -286,7 +288,7 @@ VERIFICACIÓN:
                   <span style={styles.verifiedBadge}>
                     <Check size={14} /> Discord Verificado
                   </span>
-                  <p style={styles.discordId}>ID: {discordData.id}</p>  
+                  <p style={styles.discordId}>ID: {discordData.id}</p>
                 </div>
               </div>
             )}
@@ -296,11 +298,11 @@ VERIFICACIÓN:
         {currentStep === 2 && (
           <div style={styles.stepContent}>
             <h2>Verificación de Roblox</h2>
-            
+
             {!verificationCode && !robloxData && (
               <div>
                 <p style={styles.stepDesc}>Ingresa tu nombre de usuario de Roblox para comenzar</p>
-                
+
                 <div style={styles.inputGroup}>
                   <label>Nombre de Usuario de Roblox *</label>
                   <div style={styles.verifyRow}>
@@ -311,8 +313,8 @@ VERIFICACIÓN:
                       placeholder="Ej: vonssyb"
                       style={styles.input}
                     />
-                    <button 
-                      onClick={handleGenerateCode} 
+                    <button
+                      onClick={handleGenerateCode}
                       disabled={verifying}
                       style={styles.verifyBtn}
                     >
@@ -333,10 +335,10 @@ VERIFICACIÓN:
                   padding: '2rem',
                   marginBottom: '2rem'
                 }}>
-                  <h3 style={{color: 'var(--primary)', marginBottom: '1rem'}}>
+                  <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>
                     📝 Paso 1: Agrega este código
                   </h3>
-                  <p style={{marginBottom: '1rem'}}>
+                  <p style={{ marginBottom: '1rem' }}>
                     Copia este código y agrégalo a tu <strong>descripción de Roblox</strong>:
                   </p>
                   <div style={{
@@ -368,7 +370,7 @@ VERIFICACIÓN:
                   >
                     📋 Copiar Código
                   </button>
-                  
+
                   <div style={{
                     background: 'rgba(46, 204, 113, 0.1)',
                     border: '1px solid #2ecc71',
@@ -376,11 +378,11 @@ VERIFICACIÓN:
                     padding: '1rem',
                     marginTop: '1rem'
                   }}>
-                    <p style={{fontSize: '0.9rem', margin: 0}}>
-                      <strong>Instrucciones:</strong><br/>
-                      1. Ve a <a href="https://www.roblox.com/my/account#!/info" target="_blank" rel="noopener" style={{color: 'var(--primary)'}}>Configuración de Roblox</a><br/>
-                      2. Pega el código en tu descripción<br/>
-                      3. Guarda los cambios<br/>
+                    <p style={{ fontSize: '0.9rem', margin: 0 }}>
+                      <strong>Instrucciones:</strong><br />
+                      1. Ve a <a href="https://www.roblox.com/my/account#!/info" target="_blank" rel="noopener" style={{ color: 'var(--primary)' }}>Configuración de Roblox</a><br />
+                      2. Pega el código en tu descripción<br />
+                      3. Guarda los cambios<br />
                       4. Vuelve aquí y presiona "Verificar"
                     </p>
                   </div>
@@ -420,19 +422,25 @@ VERIFICACIÓN:
             )}
 
             {robloxData && (
-              <div>
+              <div className="fade-in">
                 <p style={styles.stepDesc}>✅ Tu cuenta de Roblox ha sido verificada correctamente</p>
                 <div style={styles.verifiedCard}>
-                  {robloxData.avatar && (
-                    <img src={robloxData.avatar} alt="Roblox Avatar" style={styles.avatar} />
-                  )}
+                  <div style={styles.avatarWrapper}>
+                    {robloxData.avatar ? (
+                      <img src={robloxData.avatar} alt="Roblox Avatar" style={styles.avatar} />
+                    ) : (
+                      <div style={styles.avatarPlaceholder}>
+                        <span style={styles.placeholderText}>Roblox<br />Avatar</span>
+                      </div>
+                    )}
+                  </div>
                   <div style={styles.verifiedInfo}>
-                    <h3>{robloxData.username}</h3>
-                    <span style={styles.verifiedBadge}>
-                      <Check size={14} /> Verificado con Código
-                    </span>
+                    <h3 style={styles.verifiedName}>{robloxData.username}</h3>
+                    <div style={styles.verifiedBadge}>
+                      <Shield size={14} fill="black" /> Verificado Oficial
+                    </div>
                     <p style={styles.robloxInfo}>
-                      <strong>User ID:</strong> {robloxData.id}<br/>
+                      <strong>User ID:</strong> <span style={{ color: 'var(--primary)' }}>{robloxData.id}</span><br />
                       <strong>Edad de cuenta:</strong> {robloxData.accountAge} días
                     </p>
                   </div>
@@ -446,13 +454,13 @@ VERIFICACIÓN:
           <div style={styles.stepContent}>
             <h2>Información Personal</h2>
             <p style={styles.stepDesc}>Cuéntanos más sobre ti</p>
-            
+
             <div style={styles.inputGroup}>
               <label>Nombre Completo *</label>
               <input
                 type="text"
                 value={formData.nombreCompleto}
-                onChange={(e) => setFormData({...formData, nombreCompleto: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, nombreCompleto: e.target.value })}
                 placeholder="Juan Pérez García"
                 style={styles.input}
               />
@@ -463,7 +471,7 @@ VERIFICACIÓN:
                 <label>Edad *</label>
                 <select
                   value={formData.edad}
-                  onChange={(e) => setFormData({...formData, edad: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, edad: e.target.value })}
                   style={styles.input}
                 >
                   <option value="">Seleccionar...</option>
@@ -477,7 +485,7 @@ VERIFICACIÓN:
                 <label>Zona Horaria *</label>
                 <select
                   value={formData.zonaHoraria}
-                  onChange={(e) => setFormData({...formData, zonaHoraria: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, zonaHoraria: e.target.value })}
                   style={styles.input}
                 >
                   <option value="">Seleccionar...</option>
@@ -495,7 +503,7 @@ VERIFICACIÓN:
               <input
                 type="text"
                 value={formData.recomendadoPor}
-                onChange={(e) => setFormData({...formData, recomendadoPor: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, recomendadoPor: e.target.value })}
                 placeholder="Nombre del staff que te recomendó"
                 style={styles.input}
               />
@@ -507,14 +515,14 @@ VERIFICACIÓN:
           <div style={styles.stepContent}>
             <h2>Experiencia y Conocimiento</h2>
             <p style={styles.stepDesc}>Demuestra tu experiencia y conocimiento del servidor</p>
-            
+
             <div style={styles.inputGroup}>
               <label>Experiencia previa como Staff *</label>
               <textarea
                 value={formData.experiencia}
-                onChange={(e) => setFormData({...formData, experiencia: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, experiencia: e.target.value })}
                 placeholder="Describe tu experiencia previa (mínimo 50 caracteres)"
-                style={{...styles.input, minHeight: '100px'}}
+                style={{ ...styles.input, minHeight: '100px' }}
                 rows={4}
               />
             </div>
@@ -524,7 +532,7 @@ VERIFICACIÓN:
               <input
                 type="text"
                 value={formData.disponibilidad}
-                onChange={(e) => setFormData({...formData, disponibilidad: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, disponibilidad: e.target.value })}
                 placeholder="Ej: 20-30 horas semanales"
                 style={styles.input}
               />
@@ -534,22 +542,22 @@ VERIFICACIÓN:
               <label>¿Por qué quieres ser Staff? *</label>
               <textarea
                 value={formData.motivacion}
-                onChange={(e) => setFormData({...formData, motivacion: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, motivacion: e.target.value })}
                 placeholder="Explica tu motivación (mínimo 100 caracteres)"
-                style={{...styles.input, minHeight: '120px'}}
+                style={{ ...styles.input, minHeight: '120px' }}
                 rows={5}
               />
             </div>
 
-            <h3 style={{marginTop: '2rem', color: 'var(--primary)'}}>Escenarios de Reglas</h3>
-            
+            <h3 style={{ marginTop: '2rem', color: 'var(--primary)' }}>Escenarios de Reglas</h3>
+
             <div style={styles.inputGroup}>
               <label>Escenario IRL-X: ¿Cómo actuarías si ves a alguien usando "magia" en roleplay? *</label>
               <textarea
                 value={formData.escenario_irlx}
-                onChange={(e) => setFormData({...formData, escenario_irlx: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, escenario_irlx: e.target.value })}
                 placeholder="Tu respuesta..."
-                style={{...styles.input, minHeight: '80px'}}
+                style={{ ...styles.input, minHeight: '80px' }}
                 rows={3}
               />
             </div>
@@ -558,9 +566,9 @@ VERIFICACIÓN:
               <label>Escenario CXM: ¿Qué harías si un jugador usa información OOC en roleplay? *</label>
               <textarea
                 value={formData.escenario_cxm}
-                onChange={(e) => setFormData({...formData, escenario_cxm: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, escenario_cxm: e.target.value })}
                 placeholder="Tu respuesta..."
-                style={{...styles.input, minHeight: '80px'}}
+                style={{ ...styles.input, minHeight: '80px' }}
                 rows={3}
               />
             </div>
@@ -569,9 +577,9 @@ VERIFICACIÓN:
               <label>Escenario VLV: ¿Cómo explicarías la regla de valorar la vida? *</label>
               <textarea
                 value={formData.escenario_vlv}
-                onChange={(e) => setFormData({...formData, escenario_vlv: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, escenario_vlv: e.target.value })}
                 placeholder="Tu respuesta..."
-                style={{...styles.input, minHeight: '80px'}}
+                style={{ ...styles.input, minHeight: '80px' }}
                 rows={3}
               />
             </div>
@@ -582,7 +590,7 @@ VERIFICACIÓN:
           <div style={styles.stepContent}>
             <h2>Revisión Final</h2>
             <p style={styles.stepDesc}>Verifica que toda tu información sea correcta antes de enviar</p>
-            
+
             <div style={styles.reviewSection}>
               <h3>Discord</h3>
               <p>✓ {discordData?.username}</p>
@@ -612,7 +620,7 @@ VERIFICACIÓN:
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              style={{...styles.submitBtn, opacity: submitting ? 0.6 : 1}}
+              style={{ ...styles.submitBtn, opacity: submitting ? 0.6 : 1 }}
             >
               {submitting ? (
                 <>
@@ -634,9 +642,9 @@ VERIFICACIÓN:
               <ChevronLeft size={18} /> Anterior
             </button>
           )}
-          <div style={{flex: 1}} />
+          <div style={{ flex: 1 }} />
           {currentStep < 5 && (
-            <button onClick={handleNext} style={{...styles.navBtn, background: 'var(--primary)', color: 'black'}}>
+            <button onClick={handleNext} style={{ ...styles.navBtn, background: 'var(--primary)', color: 'black' }}>
               Siguiente <ChevronRight size={18} />
             </button>
           )}
@@ -665,17 +673,21 @@ const styles = {
   row: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' },
   verifyRow: { display: 'flex', gap: '0.75rem' },
   verifyBtn: { padding: '0.85rem 1.5rem', background: 'var(--primary)', color: 'black', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' },
-  verifiedCard: { background: 'rgba(255, 215, 0, 0.05)', border: '1px solid var(--primary)', borderRadius: '12px', padding: '1.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center', marginTop: '1.5rem' },
-  avatar: { width: '80px', height: '80px', borderRadius: '50%', border: '3px solid var(--primary)' },
+  verifiedCard: { background: 'rgba(212, 175, 55, 0.05)', border: '1px solid #D4AF37', borderRadius: '16px', padding: '2rem', display: 'flex', gap: '2rem', alignItems: 'center', marginTop: '1.5rem', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', animation: 'slideUp 0.5s ease-out' },
+  avatarWrapper: { position: 'relative', width: '100px', height: '100px' },
+  avatar: { width: '100%', height: '100%', borderRadius: '50%', border: '3px solid #D4AF37', objectFit: 'cover', boxShadow: '0 0 15px rgba(212, 175, 55, 0.3)' },
+  avatarPlaceholder: { width: '100%', height: '100%', borderRadius: '50%', border: '3px solid #D4AF37', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' },
+  placeholderText: { color: 'white', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', lineHeight: '1.1', letterSpacing: '1px' },
   verifiedInfo: { flex: 1 },
-  verifiedBadge: { display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'var(--primary)', color: 'black', padding: '0.35rem 0.85rem', borderRadius: '6px', fontSize: '0.85rem', fontWeight: '700', marginTop: '0.5rem' },
-  discordId: { marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)', fontFamily: 'monospace' },
-  robloxInfo: { marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' },
+  verifiedName: { fontSize: '1.5rem', fontWeight: '900', color: 'white', marginBottom: '0.5rem' },
+  verifiedBadge: { display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#D4AF37', color: 'black', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '1rem' },
+  discordId: { marginTop: '0.5rem', fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' },
+  robloxInfo: { marginTop: '0.5rem', fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', lineHeight: '1.6' },
   reviewSection: { background: 'var(--bg)', padding: '1.5rem', borderRadius: '12px', marginBottom: '1.5rem', border: '1px solid var(--border)' },
-  declaration: { background: 'rgba(255, 215, 0, 0.05)', padding: '1.5rem', borderRadius: '12px', marginTop: '2rem', marginBottom: '2rem', border: '1px solid var(--primary)' },
-  submitBtn: { width: '100%', padding: '1.25rem', background: '#2ecc71', color: 'white', border: 'none', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', transition: '0.2s' },
+  declaration: { background: 'rgba(212, 175, 55, 0.05)', padding: '1.5rem', borderRadius: '12px', marginTop: '2rem', marginBottom: '2rem', border: '1px solid #D4AF37' },
+  submitBtn: { width: '100%', padding: '1.25rem', background: '#2ecc71', color: 'white', border: 'none', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)' },
   navigation: { display: 'flex', gap: '1rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' },
-  navBtn: { padding: '0.85rem 1.5rem', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: '0.2s' },
+  navBtn: { padding: '0.85rem 1.5rem', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: '0.2s', '&:hover': { borderColor: 'var(--primary)' } },
   loadingContainer: { height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', color: 'var(--text-muted)' }
 };
 
