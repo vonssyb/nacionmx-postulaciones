@@ -53,10 +53,11 @@ export const getRobloxAvatar = async (userId) => {
   if (!userId) return null;
 
   try {
-    // Modern Thumbnails API
+    // Modern Thumbnails API (via CORS Proxy)
     const response = await fetch(
-      `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=true`
+      `https://corsproxy.io/?` + encodeURIComponent(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=true`)
     );
+    // const data = await response.json(); // Direct fetch might return opaque if not careful, but corsproxy usually returns body.
     const data = await response.json();
 
     if (data.data && data.data.length > 0) {

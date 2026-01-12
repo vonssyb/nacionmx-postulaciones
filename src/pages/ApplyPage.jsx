@@ -61,8 +61,30 @@ const ApplyPage = () => {
 
 
   useEffect(() => {
+    // 1. Check Discord Auth
     checkDiscordAuth();
+
+    // 2. Load Roblox Session from LocalStorage
+    const savedRoblox = localStorage.getItem('nmx_roblox_session');
+    if (savedRoblox) {
+      try {
+        const parsed = JSON.parse(savedRoblox);
+        // Optional: Check expiry or validate
+        console.log('Restoring Roblox session:', parsed);
+        setRobloxData(parsed);
+      } catch (e) {
+        console.error('Error loading saved Roblox session', e);
+        localStorage.removeItem('nmx_roblox_session');
+      }
+    }
   }, []);
+
+  // Save Roblox session whenever it changes
+  useEffect(() => {
+    if (robloxData) {
+      localStorage.setItem('nmx_roblox_session', JSON.stringify(robloxData));
+    }
+  }, [robloxData]);
 
   const checkDiscordAuth = async () => {
     setLoading(true);
@@ -319,7 +341,9 @@ VERIFICACIÓN:
 
             {discordData && (
               <div style={styles.verifiedCard}>
-                <img src={discordData.avatar} alt="Avatar" style={styles.avatar} />
+                <div style={styles.avatarWrapper}>
+                  <img src={discordData.avatar} alt="Avatar" style={styles.avatar} />
+                </div>
                 <div style={styles.verifiedInfo}>
                   <h3>{discordData.username}</h3>
                   <span style={styles.verifiedBadge}>
