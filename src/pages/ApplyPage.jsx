@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabase';
-import { verifyRobloxUser, getRobloxAvatar } from '../services/roblox';
+import { getVerifiedRobloxFromDiscord, verifyRobloxManual, getRobloxAvatar } from '../services/roblox';
 import { Shield, Check, AlertCircle, Loader, User, Gamepad2, ChevronRight, ChevronLeft } from 'lucide-react';
 import './Apply.css';
 
@@ -27,6 +27,7 @@ const ApplyPage = () => {
   const [robloxUsername, setRobloxUsername] = useState('');
   const [robloxData, setRobloxData] = useState(null);
   const [verifying, setVerifying] = useState(false);
+  const [autoVerified, setAutoVerified] = useState(false);
 
   // Form Data
   const [formData, setFormData] = useState({
@@ -50,7 +51,7 @@ const ApplyPage = () => {
   const checkDiscordAuth = async () => {
     setLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
-    
+
     if (!session) {
       // Not logged in - redirect to Discord OAuth
       const { error } = await supabase.auth.signInWithOAuth({
@@ -66,15 +67,36 @@ const ApplyPage = () => {
     } else {
       // Logged in - extract Discord data
       const user = session.user;
+      const discordId = user.id;
+
       setDiscordData({
-        id: user.id,
+        id: discordId,
         username: user.user_metadata.full_name || user.email,
         avatar: user.user_metadata.avatar_url,
         email: user.email
       });
+
+      // Auto-fetch verified Roblox from database
+      const robloxResult = await getVerifiedRobloxFromDiscord(discordId);
+
+      if (robloxResult.verified) {
+        const avatar = await getRobloxAvatar(robloxResult.username);
+        setRobloxData({
+          verified: true,
+          username: robloxResult.username,
+          id: robloxResult.id,
+          avatar,
+          displayName: robloxResult.username
+        });
+        setRobloxUsername(robloxResult.username);
+        setAutoVerified(true);
+        setFeedback({ type: 'success', text: '✅ Roblox verificado automáticamente desde Discord' });
+      }
+
       setLoading(false);
     }
   };
+
 
   const handleRobloxVerify = async () => {
     if (!robloxUsername.trim()) {
@@ -85,15 +107,15 @@ const ApplyPage = () => {
     setVerifying(true);
     setFeedback(null);
 
-    const result = await verifyRobloxUser(robloxUsername);
+    const result = await verifyRobloxManual(robloxUsername);
 
     if (result.verified) {
-      const avatar = await getRobloxAvatar(result.id);
+      const avatar = await getRobloxAvatar(robloxUsername);
       setRobloxData({
         ...result,
         avatar
       });
-      setFeedback({ type: 'success', text: '✅ Cuenta de Roblox verificada correctamente' });
+      setFeedback({ type: 'success', text: '✅ Nombre de usuario validado' });
     } else {
       setFeedback({ type: 'error', text: result.error });
     }
@@ -164,7 +186,7 @@ const ApplyPage = () => {
       if (error) throw error;
 
       setFeedback({ type: 'success', text: '¡Postulación enviada con éxito! Recibirás una respuesta pronto.' });
-      
+
       setTimeout(() => {
         navigate('/');
       }, 3000);
@@ -197,7 +219,7 @@ const ApplyPage = () => {
           const Icon = step.icon;
           const isActive = currentStep === step.id;
           const isCompleted = currentStep > step.id;
-          
+
           return (
             <div key={step.id} style={styles.stepWrapper}>
               <div style={{
@@ -238,7 +260,7 @@ const ApplyPage = () => {
           <div style={styles.stepContent}>
             <h2>Verificación de Discord</h2>
             <p style={styles.stepDesc}>Tu cuenta de Discord ha sido verificada automáticamente</p>
-            
+
             {discordData && (
               <div style={styles.verifiedCard}>
                 <img src={discordData.avatar} alt="Avatar" style={styles.avatar} />
@@ -247,7 +269,7 @@ const ApplyPage = () => {
                   <span style={styles.verifiedBadge}>
                     <Check size={14} /> Discord Verificado
                   </span>
-                  <p style={styles.discordId}>ID: {discordData.id}</p>  
+                  <p style={styles.discordId}>ID: {discordData.id}</p>
                 </div>
               </div>
             )}
@@ -258,7 +280,7 @@ const ApplyPage = () => {
           <div style={styles.stepContent}>
             <h2>Verificación de Roblox</h2>
             <p style={styles.stepDesc}>Ingresa tu nombre de usuario para verificar tu cuenta</p>
-            
+
             <div style={styles.inputGroup}>
               <label>User ID o Nombre de Usuario de Roblox *</label>
               <div style={styles.verifyRow}>
@@ -271,8 +293,8 @@ const ApplyPage = () => {
                   disabled={robloxData !== null}
                 />
                 {!robloxData && (
-                  <button 
-                    onClick={handleRobloxVerify} 
+                  <button
+                    onClick={handleRobloxVerify}
                     disabled={verifying}
                     style={styles.verifyBtn}
                   >
@@ -294,7 +316,7 @@ const ApplyPage = () => {
                     <Check size={14} /> Roblox Verificado
                   </span>
                   <p style={styles.robloxInfo}>
-                    <strong>ID:</strong> {robloxData.id}<br/>
+                    <strong>ID:</strong> {robloxData.id}<br />
                     <strong>Edad de cuenta:</strong> {robloxData.accountAge} días
                   </p>
                 </div>
@@ -307,13 +329,13 @@ const ApplyPage = () => {
           <div style={styles.stepContent}>
             <h2>Información Personal</h2>
             <p style={styles.stepDesc}>Cuéntanos más sobre ti</p>
-            
+
             <div style={styles.inputGroup}>
               <label>Nombre Completo *</label>
               <input
                 type="text"
                 value={formData.nombreCompleto}
-                onChange={(e) => setFormData({...formData, nombreCompleto: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, nombreCompleto: e.target.value })}
                 placeholder="Juan Pérez García"
                 style={styles.input}
               />
@@ -324,7 +346,7 @@ const ApplyPage = () => {
                 <label>Edad *</label>
                 <select
                   value={formData.edad}
-                  onChange={(e) => setFormData({...formData, edad: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, edad: e.target.value })}
                   style={styles.input}
                 >
                   <option value="">Seleccionar...</option>
@@ -338,7 +360,7 @@ const ApplyPage = () => {
                 <label>Zona Horaria *</label>
                 <select
                   value={formData.zonaHoraria}
-                  onChange={(e) => setFormData({...formData, zonaHoraria: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, zonaHoraria: e.target.value })}
                   style={styles.input}
                 >
                   <option value="">Seleccionar...</option>
@@ -356,7 +378,7 @@ const ApplyPage = () => {
               <input
                 type="text"
                 value={formData.recomendadoPor}
-                onChange={(e) => setFormData({...formData, recomendadoPor: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, recomendadoPor: e.target.value })}
                 placeholder="Nombre del staff que te recomendó"
                 style={styles.input}
               />
@@ -368,14 +390,14 @@ const ApplyPage = () => {
           <div style={styles.stepContent}>
             <h2>Experiencia y Conocimiento</h2>
             <p style={styles.stepDesc}>Demuestra tu experiencia y conocimiento del servidor</p>
-            
+
             <div style={styles.inputGroup}>
               <label>Experiencia previa como Staff *</label>
               <textarea
                 value={formData.experiencia}
-                onChange={(e) => setFormData({...formData, experiencia: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, experiencia: e.target.value })}
                 placeholder="Describe tu experiencia previa (mínimo 50 caracteres)"
-                style={{...styles.input, minHeight: '100px'}}
+                style={{ ...styles.input, minHeight: '100px' }}
                 rows={4}
               />
             </div>
@@ -385,7 +407,7 @@ const ApplyPage = () => {
               <input
                 type="text"
                 value={formData.disponibilidad}
-                onChange={(e) => setFormData({...formData, disponibilidad: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, disponibilidad: e.target.value })}
                 placeholder="Ej: 20-30 horas semanales"
                 style={styles.input}
               />
@@ -395,22 +417,22 @@ const ApplyPage = () => {
               <label>¿Por qué quieres ser Staff? *</label>
               <textarea
                 value={formData.motivacion}
-                onChange={(e) => setFormData({...formData, motivacion: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, motivacion: e.target.value })}
                 placeholder="Explica tu motivación (mínimo 100 caracteres)"
-                style={{...styles.input, minHeight: '120px'}}
+                style={{ ...styles.input, minHeight: '120px' }}
                 rows={5}
               />
             </div>
 
-            <h3 style={{marginTop: '2rem', color: 'var(--primary)'}}>Escenarios de Reglas</h3>
-            
+            <h3 style={{ marginTop: '2rem', color: 'var(--primary)' }}>Escenarios de Reglas</h3>
+
             <div style={styles.inputGroup}>
               <label>Escenario IRL-X: ¿Cómo actuarías si ves a alguien usando "magia" en roleplay? *</label>
               <textarea
                 value={formData.escenario_irlx}
-                onChange={(e) => setFormData({...formData, escenario_irlx: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, escenario_irlx: e.target.value })}
                 placeholder="Tu respuesta..."
-                style={{...styles.input, minHeight: '80px'}}
+                style={{ ...styles.input, minHeight: '80px' }}
                 rows={3}
               />
             </div>
@@ -419,9 +441,9 @@ const ApplyPage = () => {
               <label>Escenario CXM: ¿Qué harías si un jugador usa información OOC en roleplay? *</label>
               <textarea
                 value={formData.escenario_cxm}
-                onChange={(e) => setFormData({...formData, escenario_cxm: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, escenario_cxm: e.target.value })}
                 placeholder="Tu respuesta..."
-                style={{...styles.input, minHeight: '80px'}}
+                style={{ ...styles.input, minHeight: '80px' }}
                 rows={3}
               />
             </div>
@@ -430,9 +452,9 @@ const ApplyPage = () => {
               <label>Escenario VLV: ¿Cómo explicarías la regla de valorar la vida? *</label>
               <textarea
                 value={formData.escenario_vlv}
-                onChange={(e) => setFormData({...formData, escenario_vlv: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, escenario_vlv: e.target.value })}
                 placeholder="Tu respuesta..."
-                style={{...styles.input, minHeight: '80px'}}
+                style={{ ...styles.input, minHeight: '80px' }}
                 rows={3}
               />
             </div>
@@ -443,7 +465,7 @@ const ApplyPage = () => {
           <div style={styles.stepContent}>
             <h2>Revisión Final</h2>
             <p style={styles.stepDesc}>Verifica que toda tu información sea correcta antes de enviar</p>
-            
+
             <div style={styles.reviewSection}>
               <h3>Discord</h3>
               <p>✓ {discordData?.username}</p>
@@ -473,7 +495,7 @@ const ApplyPage = () => {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              style={{...styles.submitBtn, opacity: submitting ? 0.6 : 1}}
+              style={{ ...styles.submitBtn, opacity: submitting ? 0.6 : 1 }}
             >
               {submitting ? (
                 <>
@@ -495,9 +517,9 @@ const ApplyPage = () => {
               <ChevronLeft size={18} /> Anterior
             </button>
           )}
-          <div style={{flex: 1}} />
+          <div style={{ flex: 1 }} />
           {currentStep < 5 && (
-            <button onClick={handleNext} style={{...styles.navBtn, background: 'var(--primary)', color: 'black'}}>
+            <button onClick={handleNext} style={{ ...styles.navBtn, background: 'var(--primary)', color: 'black' }}>
               Siguiente <ChevronRight size={18} />
             </button>
           )}
