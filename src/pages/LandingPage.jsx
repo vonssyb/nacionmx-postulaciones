@@ -179,7 +179,7 @@ export default function LandingPage() {
                         >
                             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                             <span className="relative flex items-center gap-2">
-                                {user ? "Enviar Aplicación" : "Iniciar con Discord"}
+                                {user ? "Enviar Aplicación" : "Aplicar a Staff"}
                                 <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </span>
                         </Link>
