@@ -37,6 +37,9 @@ const ApplyPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [applicationStatus, setApplicationStatus] = useState('loading'); // 'can_apply', 'pending', 'cooldown', 'loading'
+  const [lastRejectionDate, setLastRejectionDate] = useState(null);
 
   // Discord Data
   const [discordData, setDiscordData] = useState(null);
@@ -110,6 +113,52 @@ const ApplyPage = () => {
         email: user.email
       });
       setLoading(false);
+
+
+      // CHECK EXISTING APPLICATIONS
+      checkExistingApplications(user.id);
+
+      setLoading(false);
+    }
+  };
+
+  const checkExistingApplications = async (discordId) => {
+    try {
+      const { data, error } = await supabase
+        .from('applications')
+        .select('*')
+        .eq('applicant_discord_id', discordId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const lastApp = data[0];
+
+        if (lastApp.status === 'pending') {
+          setApplicationStatus('pending');
+          return;
+        }
+
+        if (lastApp.status === 'rejected' && lastApp.reviewed_at) {
+          const reviewDate = new Date(lastApp.reviewed_at);
+          const now = new Date();
+          const diffTime = Math.abs(now - reviewDate);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays < 7) {
+            setLastRejectionDate(reviewDate);
+            setApplicationStatus('cooldown');
+            return;
+          }
+        }
+      }
+      setApplicationStatus('can_apply');
+    } catch (err) {
+      console.error('Error checking applications:', err);
+      // Fail safe: allow apply but log error
+      setApplicationStatus('can_apply');
     }
   };
 
@@ -258,12 +307,39 @@ VERIFICACIÓN:
         roblox_verified: true,
         roblox_account_age: robloxData.accountAge,
         roblox_display_name: robloxData.displayName || robloxData.username,
-        content: applicationText
+        content: {
+          personal_info: {
+            nombre: formData.nombreCompleto,
+            edad: formData.edad,
+            zona_horaria: formData.zonaHoraria,
+            recomendado_por: formData.recomendadoPor
+          },
+          experiencia: formData.experiencia,
+          disponibilidad: formData.disponibilidad,
+          motivacion: formData.motivacion,
+          respuestas: STAFF_QUESTIONS.map((q, i) => ({
+            question: q,
+            answer: formData.respuestas[i] || 'Sin respuesta'
+          })),
+          verificacion: {
+            discord: discordData,
+            roblox: robloxData
+          },
+          raw_text: applicationText
+        }
       }]);
 
       if (error) throw error;
 
       setFeedback({ type: 'success', text: '¡Postulación enviada con éxito! Recibirás una respuesta pronto.' });
+
+      // Trigger success animation
+      setSuccess(true);
+
+      // Simulate a delay for the user to read the success message before redirecting
+      // Also update local state to stop them from submitting again immediately
+      setApplicationStatus('pending');
+
 
       setTimeout(() => {
         navigate('/');
@@ -280,6 +356,90 @@ VERIFICACIÓN:
       <div style={styles.loadingContainer}>
         <Loader size={48} className="spin" />
         <p>Verificando autenticación...</p>
+      </div>
+    );
+  }
+
+  if (applicationStatus === 'pending') {
+    return (
+      <div style={styles.container}>
+        <div style={{ ...styles.formCard, textAlign: 'center', padding: '4rem' }}>
+          <div style={{
+            width: '80px', height: '80px', background: 'rgba(255, 215, 0, 0.1)',
+            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem'
+          }}>
+            <Check size={40} color="var(--primary)" />
+          </div>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: 'white' }}>¡Ya tienes una solicitud pendiente!</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+            Ya hemos recibido tu postulación y está siendo revisada por nuestro equipo.
+            Por favor espera a recibir una respuesta antes de enviar otra.
+          </p>
+          <button onClick={() => navigate('/')} style={styles.navBtn}>
+            <ChevronLeft size={18} /> Volver al Inicio
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (applicationStatus === 'cooldown') {
+    const daysLeft = 7 - Math.ceil(Math.abs(new Date() - new Date(lastRejectionDate)) / (1000 * 60 * 60 * 24));
+    return (
+      <div style={styles.container}>
+        <div style={{ ...styles.formCard, textAlign: 'center', padding: '4rem' }}>
+          <div style={{
+            width: '80px', height: '80px', background: 'rgba(231, 76, 60, 0.1)',
+            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem'
+          }}>
+            <AlertCircle size={40} color="#e74c3c" />
+          </div>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: '#e74c3c' }}>Postulación en espera</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+            Tu última solicitud fue rechazada recientemente. Debes esperar <strong>1 semana</strong> antes de volver a intentarlo.
+          </p>
+          <div style={{
+            background: 'var(--bg)', padding: '1rem', borderRadius: '8px',
+            display: 'inline-block', marginBottom: '2rem', border: '1px solid var(--border)'
+          }}>
+            <p style={{ margin: 0, fontWeight: 'bold' }}>Tiempo restante: {daysLeft} días</p>
+          </div>
+          <br />
+          <button onClick={() => navigate('/')} style={styles.navBtn}>
+            <ChevronLeft size={18} /> Volver al Inicio
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0E27] via-[#0F172A] to-black relative overflow-hidden font-inter flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,215,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,215,0,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+
+        <div className="relative z-10 backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-12 text-center max-w-md animate-scale-in">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#4ade80] to-[#22c55e] flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(74,222,128,0.3)]">
+            <CheckCircle2 className="w-14 h-14 text-white" />
+          </div>
+          <h2 className="text-4xl font-black text-white mb-4 tracking-tight">
+            ¡POSTULACIÓN ENVIADA!
+          </h2>
+          <p className="text-gray-300 text-lg mb-8 leading-relaxed">
+            Tu solicitud ha sido recibida correctamente.<br />
+            El equipo de <strong>Nación MX</strong> la revisará pronto.
+          </p>
+          <p className="text-sm text-gray-500 font-mono">Redirigiendo al inicio...</p>
+        </div>
+        <style>{`
+                @keyframes scale-in {
+                  0% { opacity: 0; transform: scale(0.9); }
+                  100% { opacity: 1; transform: scale(1); }
+                }
+                .animate-scale-in {
+                  animation: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+              `}</style>
       </div>
     );
   }
