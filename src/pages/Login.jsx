@@ -26,8 +26,6 @@ const Login = () => {
         }
     };
 
-    // const handleDemoLogin = ... REMOVED
-
     return (
         <div style={styles.container}>
             <div style={styles.card}>
@@ -60,8 +58,6 @@ const Login = () => {
                             </>
                         )}
                     </button>
-
-
                 </div>
 
                 <div style={styles.footer}>
