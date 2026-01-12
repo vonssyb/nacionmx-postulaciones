@@ -9,8 +9,26 @@ const STEPS = [
   { id: 1, title: 'Verificación Discord', icon: Shield },
   { id: 2, title: 'Verificación Roblox', icon: Gamepad2 },
   { id: 3, title: 'Información Personal', icon: User },
-  { id: 4, title: 'Experiencia', icon: Check },
+  { id: 4, title: 'Experiencia y Test', icon: Check },
   { id: 5, title: 'Revisión Final', icon: AlertCircle }
+];
+
+const STAFF_QUESTIONS = [
+  "Un jugador reporta metagaming, pero la única prueba es un clip incompleto y el acusado lo niega. ¿Cómo procedes y qué criterios usas para decidir?",
+  "Explica la diferencia entre PowerGaming y ForceRP, y da un ejemplo de cada uno sin confundirlos.",
+  "Un usuario nuevo comete varias faltas menores por desconocimiento de reglas. ¿Qué aplica mejor: sanción directa, advertencia pedagógica o ambas? Fundamenta.",
+  "Durante un rol, un jugador rompe FearRP porque cree que “su personaje es muy valiente”. ¿Cómo evaluas si realmente rompió la regla?",
+  "¿En qué casos el NLR (New Life Rule) NO debería aplicarse?, aunque el jugador haya reaparecido.",
+  "Dos usuarios discuten por RDM, pero ambos iniciaron provocaciones previas. ¿Cómo determinas quién tiene razón y qué sanción corresponde?",
+  "¿Qué consideras FailRP en una persecución y qué no lo sería, aunque parezca poco realista?",
+  "Define “abuso de rol de autoridad” y explica cómo lo sancionarías si lo comete un miembro del staff dentro del rol.",
+  "Si un miembro del staff participa en rol y tiene conflictos con usuarios, ¿cuándo debe retirarse para evitar parcialidad?",
+  "¿Qué diferencia hay entre bug abuse y aprovechamiento de mecánicas del juego, y cómo se determina la intención?",
+  "Un jugador usa información del Discord para ganar ventaja en rol sin que su personaje la sepa. ¿Qué regla rompe y cómo se comprueba?",
+  "¿Cómo actuarías si un jugador rompe reglas accidentalmente durante un evento grande, afectando a muchos usuarios?",
+  "Un usuario rolea una situación sensible de forma irrespetuosa. ¿Cómo intervienes equilibrando libertad de rol y límites de convivencia?",
+  "Explica por qué un staff no debe resolver reportes donde él está involucrado y cómo se maneja correctamente ese caso.",
+  "¿Qué pasos sigues antes de aplicar una sanción permanente?"
 ];
 
 const ApplyPage = () => {
@@ -38,10 +56,9 @@ const ApplyPage = () => {
     experiencia: '',
     disponibilidad: '',
     motivacion: '',
-    escenario_irlx: '',
-    escenario_cxm: '',
-    escenario_vlv: ''
+    respuestas: {} // Object to store answers by index
   });
+
 
   useEffect(() => {
     checkDiscordAuth();
@@ -131,10 +148,7 @@ const ApplyPage = () => {
       // Character validations
       const validations = [
         { field: 'experiencia', min: 50, label: 'Experiencia previa' },
-        { field: 'motivacion', min: 100, label: 'Motivación' },
-        { field: 'escenario_irlx', min: 50, label: 'Escenario IRL-X' },
-        { field: 'escenario_cxm', min: 50, label: 'Escenario CXM' },
-        { field: 'escenario_vlv', min: 50, label: 'Escenario VLV' }
+        { field: 'motivacion', min: 100, label: 'Motivación' }
       ];
 
       for (const v of validations) {
@@ -142,7 +156,19 @@ const ApplyPage = () => {
         if (value.length < v.min) {
           setFeedback({
             type: 'error',
-            text: `⚠️ El campo "${v.label}" es demasiado corto. Falta(n) ${v.min - value.length} caracteres para llegar al mínimo de ${v.min}.`
+            text: `⚠️ El campo "${v.label}" es demasiado corto. Falta(n) ${v.min - value.length} caracteres.`
+          });
+          return;
+        }
+      }
+
+      // Questons Validation
+      for (let i = 0; i < STAFF_QUESTIONS.length; i++) {
+        const answer = formData.respuestas[i] || '';
+        if (answer.length < 30) {
+          setFeedback({
+            type: 'error',
+            text: `⚠️ La respuesta a la pregunta ${i + 1} es muy corta. Mínimo 30 caracteres.`
           });
           return;
         }
@@ -188,16 +214,11 @@ ${formData.disponibilidad}
 MOTIVACIÓN:
 ${formData.motivacion}
 
-ESCENARIOS:
-
-IRL-X (Magia en RP):
-${formData.escenario_irlx}
-
-CXM (Info OOC en RP):
-${formData.escenario_cxm}
-
-VLV (Valorar la vida):
-${formData.escenario_vlv}
+RESPUESTAS TEST STAFF:
+${STAFF_QUESTIONS.map((q, i) => `
+Q${i + 1}: ${q}
+R: ${formData.respuestas[i] || 'Sin respuesta'}
+`).join('\n')}
 
 VERIFICACIÓN:
 - Discord: ${discordData.username} (${discordData.id})
@@ -573,52 +594,35 @@ VERIFICACIÓN:
               </div>
             </div>
 
-            <h3 style={{ marginTop: '2rem', color: 'var(--primary)' }}>Escenarios de Reglas</h3>
+            <h3 style={{ marginTop: '2rem', color: 'var(--primary)', marginBottom: '1.5rem' }}>
+              Test de Conocimiento ({STAFF_QUESTIONS.length} Preguntas)
+            </h3>
 
-            <div style={styles.inputGroup}>
-              <label>Escenario IRL-X: ¿Cómo actuarías si ves a alguien usando "magia" en roleplay? *</label>
-              <textarea
-                value={formData.escenario_irlx}
-                onChange={(e) => setFormData({ ...formData, escenario_irlx: e.target.value })}
-                placeholder="Tu respuesta..."
-                style={{ ...styles.input, minHeight: '80px' }}
-                rows={3}
-              />
-              <div style={styles.charCounter}>
-                {formData.escenario_irlx.length} / 50 caracteres
-                {formData.escenario_irlx.length < 50 && <span style={styles.charWarning}> (Faltan {50 - formData.escenario_irlx.length})</span>}
+            {STAFF_QUESTIONS.map((q, index) => (
+              <div key={index} style={styles.inputGroup}>
+                <label style={{ fontSize: '0.95rem', lineHeight: '1.4', marginBottom: '0.5rem', display: 'block' }}>
+                  <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{index + 1}.</span> {q}
+                </label>
+                <textarea
+                  value={formData.respuestas[index] || ''}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    respuestas: { ...formData.respuestas, [index]: e.target.value }
+                  })}
+                  placeholder="Tu respuesta detallada..."
+                  style={{ ...styles.input, minHeight: '80px' }}
+                  rows={3}
+                />
+                <div style={styles.charCounter}>
+                  {(formData.respuestas[index] || '').length} / 30 caracteres mín.
+                  {(formData.respuestas[index] || '').length < 30 && (
+                    <span style={styles.charWarning}>
+                      (Faltan {30 - (formData.respuestas[index] || '').length})
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-
-            <div style={styles.inputGroup}>
-              <label>Escenario CXM: ¿Qué harías si un jugador usa información OOC en roleplay? *</label>
-              <textarea
-                value={formData.escenario_cxm}
-                onChange={(e) => setFormData({ ...formData, escenario_cxm: e.target.value })}
-                placeholder="Tu respuesta..."
-                style={{ ...styles.input, minHeight: '80px' }}
-                rows={3}
-              />
-              <div style={styles.charCounter}>
-                {formData.escenario_cxm.length} / 50 caracteres
-                {formData.escenario_cxm.length < 50 && <span style={styles.charWarning}> (Faltan {50 - formData.escenario_cxm.length})</span>}
-              </div>
-            </div>
-
-            <div style={styles.inputGroup}>
-              <label>Escenario VLV: ¿Cómo explicarías la regla de valorar la vida? *</label>
-              <textarea
-                value={formData.escenario_vlv}
-                onChange={(e) => setFormData({ ...formData, escenario_vlv: e.target.value })}
-                placeholder="Tu respuesta..."
-                style={{ ...styles.input, minHeight: '80px' }}
-                rows={3}
-              />
-              <div style={styles.charCounter}>
-                {formData.escenario_vlv.length} / 50 caracteres
-                {formData.escenario_vlv.length < 50 && <span style={styles.charWarning}> (Faltan {50 - formData.escenario_vlv.length})</span>}
-              </div>
-            </div>
+            ))}
           </div>
         )}
 
