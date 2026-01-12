@@ -1,7 +1,10 @@
 /**
- * Roblox API Verification Service
- * Validates Roblox usernames and retrieves account information
+ * Roblox API Verification Service with CORS Proxy
+ * Uses proxy to bypass CORS restrictions
  */
+
+// Use CORS proxy for client-side requests
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
 export const verifyRobloxUser = async (username) => {
   try {
@@ -10,9 +13,8 @@ export const verifyRobloxUser = async (username) => {
     }
 
     // Step 1: Search for user by username
-    const searchRes = await fetch(
-      `https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=1`
-    );
+    const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=1`;
+    const searchRes = await fetch(CORS_PROXY + encodeURIComponent(searchUrl));
     
     if (!searchRes.ok) {
       throw new Error('Error al conectar con Roblox API');
@@ -27,7 +29,8 @@ export const verifyRobloxUser = async (username) => {
     const userId = searchData.data[0].id;
 
     // Step 2: Get full user details
-    const userRes = await fetch(`https://users.roblox.com/v1/users/${userId}`);
+    const userUrl = `https://users.roblox.com/v1/users/${userId}`;
+    const userRes = await fetch(CORS_PROXY + encodeURIComponent(userUrl));
     
     if (!userRes.ok) {
       throw new Error('No se pudo obtener información del usuario');
@@ -60,6 +63,7 @@ export const verifyRobloxUser = async (username) => {
       description: userData.description || ''
     };
   } catch (error) {
+    console.error('Roblox verification error:', error);
     return {
       verified: false,
       error: error.message || 'Error desconocido al verificar cuenta'
@@ -72,9 +76,8 @@ export const verifyRobloxUser = async (username) => {
  */
 export const getRobloxAvatar = async (userId) => {
   try {
-    const res = await fetch(
-      `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`
-    );
+    const avatarUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`;
+    const res = await fetch(CORS_PROXY + encodeURIComponent(avatarUrl));
     const data = await res.json();
     
     if (data.data && data.data.length > 0) {
@@ -83,6 +86,7 @@ export const getRobloxAvatar = async (userId) => {
     return null;
   } catch (error) {
     console.error('Error fetching Roblox avatar:', error);
-    return null;
+    // Return default placeholder
+    return `https://ui-avatars.com/api/?name=${userId}&background=0D8ABC&color=fff&size=150`;
   }
 };
