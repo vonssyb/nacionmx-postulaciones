@@ -249,7 +249,7 @@ VERIFICACIÓN:
 `.trim();
 
       const { error } = await supabase.from('applications').insert([{
-        type: 'Staff',
+        type: 'staff',
         applicant_username: robloxData.username || discordData.username,
         applicant_discord_id: discordData.id,
         discord_avatar: discordData.avatar,
