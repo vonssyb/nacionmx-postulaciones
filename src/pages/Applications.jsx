@@ -43,10 +43,10 @@ const Applications = () => {
         };
         const s = styles[status] || styles.pending;
         return (
-            <span style={{ 
-                background: s.bg, 
-                color: s.color, 
-                padding: '0.4rem 0.8rem', 
+            <span style={{
+                background: s.bg,
+                color: s.color,
+                padding: '0.4rem 0.8rem',
                 borderRadius: '6px',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -79,7 +79,16 @@ const Applications = () => {
             ) : (
                 <div style={styles.grid}>
                     {applications.map(app => {
-                        const formData = typeof app.form_data === 'string' ? JSON.parse(app.form_data) : app.form_data;
+                        let appData = {};
+                        try {
+                            // Try to parse 'content' first, fallback to form_data or empty
+                            const raw = app.content || app.form_data;
+                            appData = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                        } catch (e) { appData = {}; }
+
+                        // Extract age/experience from new structure or old structure
+                        const edad = appData?.edad || appData?.personal_info?.edad || 'N/A';
+                        const exp = appData?.experiencia || (typeof appData?.experiencia === 'string' ? appData.experiencia.substring(0, 50) + '...' : 'N/A');
                         return (
                             <div key={app.id} style={styles.card}>
                                 <div style={styles.cardHeader}>
@@ -103,11 +112,11 @@ const Applications = () => {
                                     </div>
                                     <div style={styles.infoRow}>
                                         <span style={styles.label}>Edad:</span>
-                                        <span style={styles.value}>{formData?.edad || 'N/A'}</span>
+                                        <span style={styles.value}>{edad}</span>
                                     </div>
                                     <div style={styles.infoRow}>
                                         <span style={styles.label}>Experiencia:</span>
-                                        <span style={styles.value}>{formData?.experiencia || 'N/A'}</span>
+                                        <span style={styles.value}>{exp}</span>
                                     </div>
                                 </div>
                                 <button onClick={() => setSelectedApp(app)} style={styles.viewBtn}>
@@ -133,12 +142,62 @@ const Applications = () => {
                                 <p><strong>Nombre:</strong> {selectedApp.applicant_username}</p>
                                 <p><strong>Estado:</strong> {getStatusBadge(selectedApp.status)}</p>
                             </div>
-                            {selectedApp.form_data && (
+                            {selectedApp.content && (
                                 <div style={styles.detailSection}>
-                                    <h3>Respuestas</h3>
-                                    {Object.entries(typeof selectedApp.form_data === 'string' ? JSON.parse(selectedApp.form_data) : selectedApp.form_data).map(([key, val]) => (
-                                        <p key={key}><strong>{key}:</strong> {val}</p>
-                                    ))}
+                                    <h3>Respuestas / Contenido</h3>
+                                    {(() => {
+                                        try {
+                                            const content = typeof selectedApp.content === 'string'
+                                                ? JSON.parse(selectedApp.content)
+                                                : selectedApp.content;
+
+                                            // Check if it's the new structured format
+                                            if (content.personal_info || content.experiencia) {
+                                                return (
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                                        {content.experiencia && (
+                                                            <div>
+                                                                <h4 style={styles.subHeader}>Experiencia</h4>
+                                                                <p style={styles.textBlock}>{content.experiencia}</p>
+                                                            </div>
+                                                        )}
+                                                        {content.motivacion && (
+                                                            <div>
+                                                                <h4 style={styles.subHeader}>Motivación</h4>
+                                                                <p style={styles.textBlock}>{content.motivacion}</p>
+                                                            </div>
+                                                        )}
+                                                        {content.disponibilidad && (
+                                                            <div>
+                                                                <h4 style={styles.subHeader}>Disponibilidad</h4>
+                                                                <p style={styles.textBlock}>{content.disponibilidad}</p>
+                                                            </div>
+                                                        )}
+                                                        {Array.isArray(content.respuestas) && content.respuestas.length > 0 && (
+                                                            <div>
+                                                                <h4 style={styles.subHeader}>Test de Conocimiento</h4>
+                                                                {content.respuestas.map((r, i) => (
+                                                                    <div key={i} style={styles.qaBlock}>
+                                                                        <strong style={styles.question}>P{i + 1}: {r.pregunta}</strong>
+                                                                        <p style={styles.answer}>{r.respuesta}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            }
+                                            // Fallback for flat JSON (key-value pairs)
+                                            else {
+                                                return Object.entries(content).map(([key, val]) => (
+                                                    <p key={key}><strong>{key}:</strong> {val}</p>
+                                                ));
+                                            }
+                                        } catch (e) {
+                                            // Fallback for raw text (legacy)
+                                            return <p style={{ whiteSpace: 'pre-wrap' }}>{selectedApp.content}</p>;
+                                        }
+                                    })()}
                                 </div>
                             )}
                         </div>
@@ -185,7 +244,12 @@ const styles = {
     modalBody: { padding: '1.5rem' },
     detailSection: { marginBottom: '1.5rem' },
     modalActions: { padding: '1.5rem', borderTop: '1px solid var(--border)', display: 'flex', gap: '1rem' },
-    actionBtn: { flex: 1, padding: '0.85rem', borderRadius: '8px', border: 'none', color: 'white', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }
+    actionBtn: { flex: 1, padding: '0.85rem', borderRadius: '8px', border: 'none', color: 'white', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' },
+    subHeader: { color: 'var(--primary)', marginTop: 0, marginBottom: '0.5rem', fontSize: '1rem' },
+    textBlock: { background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '8px', lineHeight: '1.6', fontSize: '0.95rem' },
+    qaBlock: { marginBottom: '1rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px' },
+    question: { display: 'block', color: '#ffd700', marginBottom: '0.5rem', fontSize: '0.95rem' },
+    answer: { margin: 0, color: '#e0e0e0', lineHeight: '1.5' }
 };
 
 export default Applications;
