@@ -1,3 +1,13 @@
+#!/bin/bash
+
+# Este script reconstruye ApplyPage con la nueva lógica de verificación por código
+
+# Extraer primero las partes que mantenemos
+head -n 50 src/pages/ApplyPage.jsx > /tmp/apply_header.jsx
+tail -n +510 src/pages/ApplyPage.jsx > /tmp/apply_styles.jsx
+
+# Crear el archivo completo nuevo
+cat > src/pages/ApplyPage.jsx << 'FULLEOF'
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabase';
@@ -680,3 +690,6 @@ const styles = {
 };
 
 export default ApplyPage;
+FULLEOF
+
+echo "✅ ApplyPage completely rebuilt with code verification system"
