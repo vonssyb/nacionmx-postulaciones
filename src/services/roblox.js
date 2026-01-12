@@ -1,49 +1,88 @@
-// Obtener información de usuario de Roblox por username
-export async function getRobloxUserByUsername(username) {
-    try {
-        // Primero obtenemos el ID del usuario
-        const response = await fetch('https://users.roblox.com/v1/usernames/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                usernames: [username],
-                excludeBannedUsers: false,
-            }),
-        })
+/**
+ * Roblox API Verification Service
+ * Validates Roblox usernames and retrieves account information
+ */
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch Roblox user')
-        }
-
-        const data = await response.json()
-
-        if (!data.data || data.data.length === 0) {
-            return null
-        }
-
-        const user = data.data[0]
-
-        // Obtener información adicional del usuario
-        const userInfo = await fetch(`https://users.roblox.com/v1/users/${user.id}`)
-        const userDetails = await userInfo.json()
-
-        return {
-            id: user.id.toString(),
-            username: user.name,
-            displayName: user.displayName || user.name,
-            created: userDetails.created,
-            isBanned: userDetails.isBanned || false,
-        }
-    } catch (error) {
-        console.error('Error fetching Roblox user:', error)
-        return null
+export const verifyRobloxUser = async (username) => {
+  try {
+    if (!username || username.trim().length === 0) {
+      throw new Error('Por favor ingresa un nombre de usuario');
     }
-}
 
-// Validar que un usuario de Roblox exista
-export async function validateRobloxUser(username) {
-    const user = await getRobloxUserByUsername(username)
-    return user !== null
-}
+    // Step 1: Search for user by username
+    const searchRes = await fetch(
+      `https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=1`
+    );
+    
+    if (!searchRes.ok) {
+      throw new Error('Error al conectar con Roblox API');
+    }
+
+    const searchData = await searchRes.json();
+    
+    if (!searchData.data || searchData.data.length === 0) {
+      throw new Error('Usuario de Roblox no encontrado');
+    }
+
+    const userId = searchData.data[0].id;
+
+    // Step 2: Get full user details
+    const userRes = await fetch(`https://users.roblox.com/v1/users/${userId}`);
+    
+    if (!userRes.ok) {
+      throw new Error('No se pudo obtener información del usuario');
+    }
+
+    const userData = await userRes.json();
+
+    // Step 3: Check if account is banned
+    if (userData.isBanned) {
+      throw new Error('Esta cuenta de Roblox está baneada');
+    }
+
+    // Step 4: Calculate account age in days
+    const createdDate = new Date(userData.created);
+    const accountAgeDays = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    // Step 5: Check minimum account age (7 days)
+    if (accountAgeDays < 7) {
+      throw new Error(`La cuenta debe tener al menos 7 días (tiene ${accountAgeDays} días)`);
+    }
+
+    return {
+      verified: true,
+      id: userId,
+      username: userData.name,
+      displayName: userData.displayName,
+      accountAge: accountAgeDays,
+      created: userData.created,
+      isBanned: userData.isBanned,
+      description: userData.description || ''
+    };
+  } catch (error) {
+    return {
+      verified: false,
+      error: error.message || 'Error desconocido al verificar cuenta'
+    };
+  }
+};
+
+/**
+ * Get Roblox user avatar thumbnail
+ */
+export const getRobloxAvatar = async (userId) => {
+  try {
+    const res = await fetch(
+      `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`
+    );
+    const data = await res.json();
+    
+    if (data.data && data.data.length > 0) {
+      return data.data[0].imageUrl;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching Roblox avatar:', error);
+    return null;
+  }
+};

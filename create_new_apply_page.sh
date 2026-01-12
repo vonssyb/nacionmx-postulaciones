@@ -1,3 +1,6 @@
+#!/bin/bash
+
+cat > src/pages/ApplyPage_New.jsx << 'EOF'
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabase';
@@ -541,3 +544,6 @@ const styles = {
 };
 
 export default ApplyPage;
+EOF
+
+echo "✅ New ApplyPage created successfully"
