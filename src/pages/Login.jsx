@@ -65,9 +65,7 @@ const Login = () => {
                 </div>
 
                 <div style={styles.footer}>
-                    <div style={styles.footer}>
-                        <small>Acceso monitoreado. Solo personal autorizado.</small>
-                    </div>
+                    <small>Acceso monitoreado. Solo personal autorizado.</small>
                 </div>
             </div>
         </div>
@@ -111,51 +109,50 @@ const styles = {
         letterSpacing: '1px',
     },
     subtitle: {
-        subtitle: {
-            color: '#e74c3c',
-            textTransform: 'uppercase',
-            letterSpacing: '2px',
-            fontSize: '0.85rem',
-            marginTop: '0.5rem',
-        },
-        content: {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.5rem',
-        },
-        description: {
-            color: 'var(--text-muted)',
-            fontSize: '0.95rem',
-            marginBottom: '1rem',
-        },
-        discordButton: {
-            background: '#5865F2', // Discord Brand Color
-            color: '#fff',
-            padding: '1rem',
-            borderRadius: 'var(--radius)',
-            fontSize: '1rem',
-            fontWeight: '600',
-            border: 'none',
-            transition: 'var(--transition)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-        },
-        textLink: {
-            background: 'transparent',
-            color: 'var(--text-muted)',
-            fontSize: '0.8rem',
-            textDecoration: 'underline',
-            marginTop: '1rem',
-        },
-        footer: {
-            marginTop: '2rem',
-            textAlign: 'center',
-            color: 'var(--text-muted)',
-            borderTop: '1px solid var(--border)',
-            paddingTop: '1.5rem',
-        }
-    };
+        color: '#e74c3c',
+        textTransform: 'uppercase',
+        letterSpacing: '2px',
+        fontSize: '0.85rem',
+        marginTop: '0.5rem',
+    },
+    content: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.5rem',
+    },
+    description: {
+        color: 'var(--text-muted)',
+        fontSize: '0.95rem',
+        marginBottom: '1rem',
+    },
+    discordButton: {
+        background: '#5865F2', // Discord Brand Color
+        color: '#fff',
+        padding: '1rem',
+        borderRadius: 'var(--radius)',
+        fontSize: '1rem',
+        fontWeight: '600',
+        border: 'none',
+        transition: 'var(--transition)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+    },
+    textLink: {
+        background: 'transparent',
+        color: 'var(--text-muted)',
+        fontSize: '0.8rem',
+        textDecoration: 'underline',
+        marginTop: '1rem',
+    },
+    footer: {
+        marginTop: '2rem',
+        textAlign: 'center',
+        color: 'var(--text-muted)',
+        borderTop: '1px solid var(--border)',
+        paddingTop: '1.5rem',
+    }
+};
 
-    export default Login;
+export default Login;
