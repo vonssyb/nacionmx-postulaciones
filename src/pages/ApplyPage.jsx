@@ -260,13 +260,13 @@ const ApplyPage = () => {
             <p style={styles.stepDesc}>Ingresa tu nombre de usuario para verificar tu cuenta</p>
             
             <div style={styles.inputGroup}>
-              <label>Nombre de Usuario de Roblox *</label>
+              <label>User ID o Nombre de Usuario de Roblox *</label>
               <div style={styles.verifyRow}>
                 <input
                   type="text"
                   value={robloxUsername}
                   onChange={(e) => setRobloxUsername(e.target.value)}
-                  placeholder="Ej: JohnDoe123"
+                  placeholder="Ej: vonssyb o 123456789"
                   style={styles.input}
                   disabled={robloxData !== null}
                 />
