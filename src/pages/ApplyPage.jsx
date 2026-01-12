@@ -142,7 +142,7 @@ const ApplyPage = () => {
         if (value.length < v.min) {
           setFeedback({
             type: 'error',
-            text: `El campo "${v.label}" es muy corto. Falta(n) ${v.min - value.length} caracteres.`
+            text: `⚠️ El campo "${v.label}" es demasiado corto. Falta(n) ${v.min - value.length} caracteres para llegar al mínimo de ${v.min}.`
           });
           return;
         }
@@ -541,6 +541,10 @@ VERIFICACIÓN:
                 style={{ ...styles.input, minHeight: '100px' }}
                 rows={4}
               />
+              <div style={styles.charCounter}>
+                {formData.experiencia.length} / 50 caracteres
+                {formData.experiencia.length < 50 && <span style={styles.charWarning}> (Faltan {50 - formData.experiencia.length})</span>}
+              </div>
             </div>
 
             <div style={styles.inputGroup}>
@@ -563,6 +567,10 @@ VERIFICACIÓN:
                 style={{ ...styles.input, minHeight: '120px' }}
                 rows={5}
               />
+              <div style={styles.charCounter}>
+                {formData.motivacion.length} / 100 caracteres
+                {formData.motivacion.length < 100 && <span style={styles.charWarning}> (Faltan {100 - formData.motivacion.length})</span>}
+              </div>
             </div>
 
             <h3 style={{ marginTop: '2rem', color: 'var(--primary)' }}>Escenarios de Reglas</h3>
@@ -576,6 +584,10 @@ VERIFICACIÓN:
                 style={{ ...styles.input, minHeight: '80px' }}
                 rows={3}
               />
+              <div style={styles.charCounter}>
+                {formData.escenario_irlx.length} / 50 caracteres
+                {formData.escenario_irlx.length < 50 && <span style={styles.charWarning}> (Faltan {50 - formData.escenario_irlx.length})</span>}
+              </div>
             </div>
 
             <div style={styles.inputGroup}>
@@ -587,6 +599,10 @@ VERIFICACIÓN:
                 style={{ ...styles.input, minHeight: '80px' }}
                 rows={3}
               />
+              <div style={styles.charCounter}>
+                {formData.escenario_cxm.length} / 50 caracteres
+                {formData.escenario_cxm.length < 50 && <span style={styles.charWarning}> (Faltan {50 - formData.escenario_cxm.length})</span>}
+              </div>
             </div>
 
             <div style={styles.inputGroup}>
@@ -598,6 +614,10 @@ VERIFICACIÓN:
                 style={{ ...styles.input, minHeight: '80px' }}
                 rows={3}
               />
+              <div style={styles.charCounter}>
+                {formData.escenario_vlv.length} / 50 caracteres
+                {formData.escenario_vlv.length < 50 && <span style={styles.charWarning}> (Faltan {50 - formData.escenario_vlv.length})</span>}
+              </div>
             </div>
           </div>
         )}
@@ -704,6 +724,8 @@ const styles = {
   submitBtn: { width: '100%', padding: '1.25rem', background: '#2ecc71', color: 'white', border: 'none', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)' },
   navigation: { display: 'flex', gap: '1rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' },
   navBtn: { padding: '0.85rem 1.5rem', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: '0.2s', '&:hover': { borderColor: 'var(--primary)' } },
+  charCounter: { fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem', textAlign: 'right', fontWeight: '600' },
+  charWarning: { color: '#e74c3c', marginLeft: '0.5rem' },
   loadingContainer: { height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', color: 'var(--text-muted)' }
 };
 
