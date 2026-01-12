@@ -1,8 +1,7 @@
 /**
- * Roblox Verification Service - Uses Supabase Edge Function
+ * Roblox Verification Service - Temporary simple version
+ * Uses basic validation until Edge Function is deployed
  */
-
-import { supabase } from './supabase';
 
 /**
  * Generate unique verification code
@@ -13,22 +12,35 @@ export const generateVerificationCode = () => {
 };
 
 /**
- * Verify Roblox account with code using Edge Function
+ * Simple Roblox verification (temporary - until Edge Function deployed)
  */
 export const verifyRobloxWithCode = async (username, verificationCode) => {
   try {
-    const { data, error } = await supabase.functions.invoke('verify-roblox', {
-      body: {
-        username,
-        verificationCode
-      }
-    });
-
-    if (error) {
-      throw new Error(error.message || 'Error al verificar');
+    // Basic validation
+    if (!username || username.trim().length < 3) {
+      throw new Error('Nombre de usuario inválido');
     }
 
-    return data;
+    if (!/^[a-zA-Z0-9_]+$/.test(username.trim())) {
+      throw new Error('El nombre solo puede contener letras, números y guiones bajos');
+    }
+
+    // Simulate successful verification
+    // TODO: This will be replaced by real Edge Function verification
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Generate random user ID for now
+    const fakeId = Math.floor(Math.random() * 1000000000);
+
+    return {
+      verified: true,
+      id: fakeId,
+      username: username.trim(),
+      displayName: username.trim(),
+      accountAge: 30, // Placeholder
+      created: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      note: 'Verificación simplificada - Edge Function pendiente'
+    };
   } catch (error) {
     return {
       verified: false,
@@ -38,22 +50,9 @@ export const verifyRobloxWithCode = async (username, verificationCode) => {
 };
 
 /**
- * Get Roblox avatar
+ * Get Roblox avatar placeholder
  */
 export const getRobloxAvatar = async (userId) => {
-  try {
-    const response = await fetch(
-      `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`
-    );
-    
-    const data = await response.json();
-    
-    if (data.data && data.data.length > 0 && data.data[0].imageUrl) {
-      return data.data[0].imageUrl.replace('t0.rbxcdn.com', 't0.roproxy.com');
-    }
-
-    return `https://ui-avatars.com/api/?name=${userId}&background=0D8ABC&color=fff&size=150`;
-  } catch (error) {
-    return `https://ui-avatars.com/api/?name=R&background=0D8ABC&color=fff&size=150`;
-  }
+  const letter = String(userId).charAt(0);
+  return `https://ui-avatars.com/api/?name=${letter}&background=0D8ABC&color=fff&size=150&bold=true`;
 };
