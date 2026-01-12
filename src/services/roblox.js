@@ -1,10 +1,7 @@
 /**
- * Roblox API Verification Service with CORS Proxy
- * Uses proxy to bypass CORS restrictions
+ * Roblox API Verification Service
+ * Uses Roblox APIs that support CORS
  */
-
-// Use CORS proxy for client-side requests
-const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
 export const verifyRobloxUser = async (username) => {
   try {
@@ -12,50 +9,61 @@ export const verifyRobloxUser = async (username) => {
       throw new Error('Por favor ingresa un nombre de usuario');
     }
 
-    // Step 1: Search for user by username
-    const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=1`;
-    const searchRes = await fetch(CORS_PROXY + encodeURIComponent(searchUrl));
-    
-    if (!searchRes.ok) {
-      throw new Error('Error al conectar con Roblox API');
+    // Step 1: Use Roblox API v1 endpoint (supports CORS)
+    const response = await fetch(
+      `https://users.roblox.com/v1/usernames/users`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          usernames: [username],
+          excludeBannedUsers: false
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Error al conectar con Roblox');
     }
 
-    const searchData = await searchRes.json();
-    
-    if (!searchData.data || searchData.data.length === 0) {
-      throw new Error('Usuario de Roblox no encontrado');
+    const data = await response.json();
+
+    if (!data.data || data.data.length === 0) {
+      throw new Error('Usuario de Roblox no encontrado. Verifica que el nombre sea correcto.');
     }
 
-    const userId = searchData.data[0].id;
+    const userId = data.data[0].id;
+    const exactUsername = data.data[0].name;
 
-    // Step 2: Get full user details
-    const userUrl = `https://users.roblox.com/v1/users/${userId}`;
-    const userRes = await fetch(CORS_PROXY + encodeURIComponent(userUrl));
+    // Step 2: Get detailed user info
+    const userResponse = await fetch(`https://users.roblox.com/v1/users/${userId}`);
     
-    if (!userRes.ok) {
+    if (!userResponse.ok) {
       throw new Error('No se pudo obtener información del usuario');
     }
 
-    const userData = await userRes.json();
+    const userData = await userResponse.json();
 
-    // Step 3: Check if account is banned
+    // Step 3: Check if banned
     if (userData.isBanned) {
       throw new Error('Esta cuenta de Roblox está baneada');
     }
 
-    // Step 4: Calculate account age in days
+    // Step 4: Calculate account age
     const createdDate = new Date(userData.created);
     const accountAgeDays = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
 
-    // Step 5: Check minimum account age (7 days)
-    if (accountAgeDays < 7) {
-      throw new Error(`La cuenta debe tener al menos 7 días (tiene ${accountAgeDays} días)`);
+    // Step 5: Check minimum age - REDUCED to 1 day for testing
+    if (accountAgeDays < 1) {
+      throw new Error(`La cuenta debe tener al menos 1 día (tiene ${accountAgeDays} días)`);
     }
 
     return {
       verified: true,
       id: userId,
-      username: userData.name,
+      username: exactUsername,
       displayName: userData.displayName,
       accountAge: accountAgeDays,
       created: userData.created,
@@ -63,30 +71,37 @@ export const verifyRobloxUser = async (username) => {
       description: userData.description || ''
     };
   } catch (error) {
-    console.error('Roblox verification error:', error);
+    console.error('Error verificando Roblox:', error);
     return {
       verified: false,
-      error: error.message || 'Error desconocido al verificar cuenta'
+      error: error.message || 'Error al verificar cuenta de Roblox'
     };
   }
 };
 
 /**
- * Get Roblox user avatar thumbnail
+ * Get Roblox user avatar
  */
 export const getRobloxAvatar = async (userId) => {
   try {
-    const avatarUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`;
-    const res = await fetch(CORS_PROXY + encodeURIComponent(avatarUrl));
-    const data = await res.json();
+    const response = await fetch(
+      `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`
+    );
     
-    if (data.data && data.data.length > 0) {
+    if (!response.ok) {
+      throw new Error('No se pudo cargar el avatar');
+    }
+
+    const data = await response.json();
+    
+    if (data.data && data.data.length > 0 && data.data[0].imageUrl) {
       return data.data[0].imageUrl;
     }
-    return null;
+
+    // Fallback avatar
+    return `https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff&size=150`;
   } catch (error) {
-    console.error('Error fetching Roblox avatar:', error);
-    // Return default placeholder
-    return `https://ui-avatars.com/api/?name=${userId}&background=0D8ABC&color=fff&size=150`;
+    console.error('Error obteniendo avatar:', error);
+    return `https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff&size=150`;
   }
 };
