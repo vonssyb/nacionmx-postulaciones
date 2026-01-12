@@ -32,14 +32,17 @@ const Login = () => {
         <div style={styles.container}>
             <div style={styles.card}>
                 <div style={styles.header}>
-                    <Shield size={48} color="var(--primary)" />
-                    <h1 style={styles.title}>NACIÓN MX</h1>
-                    <p style={styles.subtitle}>Portal de Moderación</p>
+                    <div style={styles.iconWrapper}>
+                        <Shield size={48} color="#e74c3c" />
+                    </div>
+                    <h1 style={styles.title}>PANEL ADMINISTRATIVO</h1>
+                    <p style={styles.subtitle}>Acceso Restringido - Nación MX</p>
                 </div>
 
                 <div style={styles.content}>
                     <p style={styles.description}>
-                        Identifícate con tu cuenta de Discord para acceder al panel de administración y registros.
+                        Área exclusiva para el staff de Nación MX.<br />
+                        Utiliza tu cuenta de Discord vinculada para ingresar.
                     </p>
 
                     <button
@@ -62,7 +65,9 @@ const Login = () => {
                 </div>
 
                 <div style={styles.footer}>
-                    <small>Acceso restringido únicamente para personal autorizado.</small>
+                    <div style={styles.footer}>
+                        <small>Acceso monitoreado. Solo personal autorizado.</small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -84,9 +89,16 @@ const styles = {
         border: '1px solid var(--border)',
         width: '100%',
         maxWidth: '450px',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+        boxShadow: '0 20px 50px rgba(231, 76, 60, 0.15)',
         backdropFilter: 'blur(10px)',
         textAlign: 'center',
+    },
+    iconWrapper: {
+        width: '80px', height: '80px',
+        background: 'rgba(231, 76, 60, 0.1)',
+        borderRadius: '50%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        margin: '0 auto 1rem'
     },
     header: {
         marginBottom: '2rem',
@@ -99,50 +111,51 @@ const styles = {
         letterSpacing: '1px',
     },
     subtitle: {
-        color: 'var(--primary)',
-        textTransform: 'uppercase',
-        letterSpacing: '2px',
-        fontSize: '0.85rem',
-        marginTop: '0.5rem',
-    },
-    content: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.5rem',
-    },
-    description: {
-        color: 'var(--text-muted)',
-        fontSize: '0.95rem',
-        marginBottom: '1rem',
-    },
-    discordButton: {
-        background: '#5865F2', // Discord Brand Color
-        color: '#fff',
-        padding: '1rem',
-        borderRadius: 'var(--radius)',
-        fontSize: '1rem',
-        fontWeight: '600',
-        border: 'none',
-        transition: 'var(--transition)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-    },
-    textLink: {
-        background: 'transparent',
-        color: 'var(--text-muted)',
-        fontSize: '0.8rem',
-        textDecoration: 'underline',
-        marginTop: '1rem',
-    },
-    footer: {
-        marginTop: '2rem',
-        textAlign: 'center',
-        color: 'var(--text-muted)',
-        borderTop: '1px solid var(--border)',
-        paddingTop: '1.5rem',
-    }
-};
+        subtitle: {
+            color: '#e74c3c',
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            fontSize: '0.85rem',
+            marginTop: '0.5rem',
+        },
+        content: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem',
+        },
+        description: {
+            color: 'var(--text-muted)',
+            fontSize: '0.95rem',
+            marginBottom: '1rem',
+        },
+        discordButton: {
+            background: '#5865F2', // Discord Brand Color
+            color: '#fff',
+            padding: '1rem',
+            borderRadius: 'var(--radius)',
+            fontSize: '1rem',
+            fontWeight: '600',
+            border: 'none',
+            transition: 'var(--transition)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+        },
+        textLink: {
+            background: 'transparent',
+            color: 'var(--text-muted)',
+            fontSize: '0.8rem',
+            textDecoration: 'underline',
+            marginTop: '1rem',
+        },
+        footer: {
+            marginTop: '2rem',
+            textAlign: 'center',
+            color: 'var(--text-muted)',
+            borderTop: '1px solid var(--border)',
+            paddingTop: '1.5rem',
+        }
+    };
 
-export default Login;
+    export default Login;

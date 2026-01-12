@@ -10,6 +10,7 @@ import {
     CheckCircle2,
 } from "lucide-react";
 import { supabase } from "../services/supabase";
+import { useStaffCheck } from "../hooks/useStaffCheck";
 
 export default function LandingPage() {
     const [user, setUser] = useState(null);
@@ -20,12 +21,20 @@ export default function LandingPage() {
         approvalRate: 12,
     });
 
+    // Use the hook to check for staff
+    const { isStaff, checkStaffStatus } = useStaffCheck();
+
     useEffect(() => {
         // 1. Auth Check
         const checkUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             setUser(session?.user || null);
             setLoading(false);
+
+            // Check Staff Role if user exists
+            if (session?.user) {
+                checkStaffStatus(session);
+            }
         };
         checkUser();
 
@@ -110,7 +119,7 @@ export default function LandingPage() {
                                     Dashboard
                                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#FFD700] group-hover:w-full transition-all duration-300"></span>
                                 </Link>
-                                {user && (
+                                {isStaff && (
                                     <Link
                                         to="/admin"
                                         className="text-gray-300 hover:text-[#DC143C] transition-all duration-300 relative group font-semibold"
