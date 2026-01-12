@@ -236,7 +236,7 @@ VERIFICACIÓN:
         roblox_verified: true,
         roblox_account_age: robloxData.accountAge,
         roblox_display_name: robloxData.displayName || robloxData.username,
-        application_text: applicationText
+        content: applicationText
       }]);
 
       if (error) throw error;
