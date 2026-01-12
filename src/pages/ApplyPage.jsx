@@ -128,12 +128,28 @@ const ApplyPage = () => {
       }
     }
     if (currentStep === 4) {
-      if (!formData.experiencia || !formData.disponibilidad || !formData.motivacion) {
-        setFeedback({ type: 'error', text: 'Completa todos los campos de experiencia' });
-        return;
+      // Character validations
+      const validations = [
+        { field: 'experiencia', min: 50, label: 'Experiencia previa' },
+        { field: 'motivacion', min: 100, label: 'Motivación' },
+        { field: 'escenario_irlx', min: 50, label: 'Escenario IRL-X' },
+        { field: 'escenario_cxm', min: 50, label: 'Escenario CXM' },
+        { field: 'escenario_vlv', min: 50, label: 'Escenario VLV' }
+      ];
+
+      for (const v of validations) {
+        const value = formData[v.field] || '';
+        if (value.length < v.min) {
+          setFeedback({
+            type: 'error',
+            text: `El campo "${v.label}" es muy corto. Falta(n) ${v.min - value.length} caracteres.`
+          });
+          return;
+        }
       }
-      if (!formData.escenario_irlx || !formData.escenario_cxm || !formData.escenario_vlv) {
-        setFeedback({ type: 'error', text: 'Debes responder los 3 escenarios' });
+
+      if (!formData.disponibilidad) {
+        setFeedback({ type: 'error', text: 'Debes indicar tu disponibilidad horaria' });
         return;
       }
     }
@@ -198,7 +214,7 @@ VERIFICACIÓN:
         roblox_id: robloxData.id,
         roblox_verified: true,
         roblox_account_age: robloxData.accountAge,
-        robloxDisplay_name: robloxData.displayName || robloxData.username,
+        roblox_display_name: robloxData.displayName || robloxData.username,
         application_text: applicationText
       }]);
 
