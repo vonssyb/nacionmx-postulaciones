@@ -166,27 +166,59 @@ const ApplyPage = () => {
     setFeedback(null);
 
     try {
+      // Prepare application text with all form data
+      const applicationText = `
+=== POSTULACIÓN DE STAFF ===
+
+INFORMACIÓN PERSONAL:
+- Nombre Completo: ${formData.nombreCompleto}
+- Edad: ${formData.edad} años
+- Zona Horaria: ${formData.zonaHoraria}
+- Recomendado por: ${formData.recomendadoPor || 'N/A'}
+
+EXPERIENCIA:
+${formData.experiencia}
+
+DISPONIBILIDAD:
+${formData.disponibilidad}
+
+MOTIVACIÓN:
+${formData.motivacion}
+
+ESCENARIOS:
+
+IRL-X (Magia en RP):
+${formData.escenario_irlx}
+
+CXM (Info OOC en RP):
+${formData.escenario_cxm}
+
+VLV (Valorar la vida):
+${formData.escenario_vlv}
+
+VERIFICACIÓN:
+- Discord: ${discordData.username} (${discordData.id})
+- Roblox: ${robloxData.username}
+- Email: ${discordData.email}
+`.trim();
+
       const { error } = await supabase.from('applications').insert([{
         type: 'Staff',
-        applicant_username: discordData.username,
+        applicant_username: robloxData.username || discordData.username,
         applicant_discord_id: discordData.id,
         discord_avatar: discordData.avatar,
         status: 'pending',
         roblox_id: robloxData.id,
-        roblox_verified: true,
+        roblox_verified: robloxData.verified || false,
         roblox_account_age: robloxData.accountAge,
-        roblox_display_name: robloxData.displayName,
-        form_data: {
-          ...formData,
-          robloxUsername: robloxData.username,
-          discordEmail: discordData.email
-        }
+        roblox_display_name: robloxData.displayName || robloxData.username,
+        application_text: applicationText
       }]);
 
       if (error) throw error;
 
       setFeedback({ type: 'success', text: '¡Postulación enviada con éxito! Recibirás una respuesta pronto.' });
-
+      
       setTimeout(() => {
         navigate('/');
       }, 3000);
