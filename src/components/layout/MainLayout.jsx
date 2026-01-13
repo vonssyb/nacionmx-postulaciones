@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Shield, FileText, Settings, LogOut } from 'lucide-react';
+import { Shield, FileText, Settings, LogOut, Users, Clock, DollarSign, AlertTriangle, UserX, ClipboardList, Book, Activity } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 import { useDiscordMember } from '../auth/RoleGuard';
 import './MainLayout.css';
@@ -57,10 +57,45 @@ const MainLayout = () => {
                         <FileText size={20} />
                         <span>Solicitudes</span>
                     </NavLink>
-                    
+
+                    <NavLink to="/dashboard/staff" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                        <Users size={20} />
+                        <span>Staff Hub</span>
+                    </NavLink>
+
+                    <NavLink to="/dashboard/shifts" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                        <Clock size={20} />
+                        <span>Turnos</span>
+                    </NavLink>
+
+                    <NavLink to="/dashboard/finance" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                        <DollarSign size={20} />
+                        <span>Finanzas</span>
+                    </NavLink>
+
+                    <NavLink to="/dashboard/bolo" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                        <AlertTriangle size={20} />
+                        <span>BOLO</span>
+                    </NavLink>
+
+                    <NavLink to="/dashboard/logs" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                        <ClipboardList size={20} />
+                        <span>Registros</span>
+                    </NavLink>
+
+                    <NavLink to="/dashboard/status" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                        <Activity size={20} />
+                        <span>Estado</span>
+                    </NavLink>
+
                     <NavLink to="/dashboard/admin" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Settings size={20} />
+                        <Users size={20} />
                         <span>Admin</span>
+                    </NavLink>
+
+                    <NavLink to="/dashboard/settings" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                        <Settings size={20} />
+                        <span>Configuración</span>
                     </NavLink>
                 </nav>
 
