@@ -248,12 +248,7 @@ const Applications = () => {
                                                             {Array.isArray(content.respuestas) && content.respuestas.length > 0 && (
                                                                 <div>
                                                                     <h4 style={styles.subHeader}>Test de Conocimiento</h4>
-                                                                    {content.respuestas.map((r, i) => (
-                                                                        <div key={i} style={styles.qaBlock}>
-                                                                            <strong style={styles.question}>P{i + 1}: {r.question || r.pregunta}</strong>
-                                                                            <p style={styles.answer}>{r.answer || r.respuesta}</p>
-                                                                        </div>
-                                                                    ))}
+                                                                    <QuestionReview questions={content.respuestas} />
                                                                 </div>
                                                             )}
                                                         </div>
