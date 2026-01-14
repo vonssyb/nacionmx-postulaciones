@@ -36,6 +36,14 @@ const QuestionReview = ({ questions }) => {
 
     const scoreData = calculateScore();
 
+    // Debug logging
+    console.log('[QuestionReview] Rendering with questions:', questions);
+    console.log('[QuestionReview] Questions array length:', questions?.length);
+
+    if (!questions || questions.length === 0) {
+        return <div style={{ padding: '1rem', color: '#e74c3c' }}>No hay preguntas disponibles para calificar</div>;
+    }
+
     return (
         <div style={styles.container}>
             {/* Score Counter */}
