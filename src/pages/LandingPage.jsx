@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     Shield,
     Lock,
@@ -8,11 +8,13 @@ import {
     Users,
     TrendingUp,
     CheckCircle2,
+    LogOut,
 } from "lucide-react";
 import { supabase } from "../services/supabase";
 import { useStaffCheck } from "../hooks/useStaffCheck";
 
 export default function LandingPage() {
+    const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
@@ -23,6 +25,13 @@ export default function LandingPage() {
 
     // Use the hook to check for staff
     const { isStaff, checkStaffStatus } = useStaffCheck();
+
+    const handleLogout = async () => {
+        sessionStorage.clear();
+        await supabase.auth.signOut();
+        setUser(null);
+        navigate('/');
+    };
 
     useEffect(() => {
         // 1. Auth Check
@@ -146,6 +155,13 @@ export default function LandingPage() {
                                             {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
                                         </span>
                                     </div>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/50 transition-all duration-300 group"
+                                        title="Cerrar Sesión"
+                                    >
+                                        <LogOut className="w-5 h-5 text-white group-hover:text-red-400" />
+                                    </button>
                                 </div>
                             ) : (
                                 <Link
