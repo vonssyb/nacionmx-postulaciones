@@ -239,16 +239,66 @@ const Applications = () => {
                                         {(() => {
                                             try {
                                                 const content = typeof selectedApp.content === 'string' ? JSON.parse(selectedApp.content) : selectedApp.content;
+
+                                                // Helper function to parse plain text questions
+                                                const parseQuestionsFromText = (text) => {
+                                                    if (!text || typeof text !== 'string') return [];
+
+                                                    const questions = [];
+                                                    const lines = text.split('\n');
+                                                    let currentQ = null;
+                                                    let currentR = null;
+
+                                                    for (const line of lines) {
+                                                        const trimmed = line.trim();
+
+                                                        // Match Q1:, Q2:, etc.
+                                                        const qMatch = trimmed.match(/^Q(\d+):\s*(.+)/);
+                                                        if (qMatch) {
+                                                            // Save previous Q&A if exists
+                                                            if (currentQ && currentR) {
+                                                                questions.push({ question: currentQ, answer: currentR });
+                                                            }
+                                                            currentQ = qMatch[2];
+                                                            currentR = null;
+                                                        }
+
+                                                        // Match R:
+                                                        const rMatch = trimmed.match(/^R:\s*(.+)/);
+                                                        if (rMatch && currentQ) {
+                                                            currentR = rMatch[1];
+                                                        }
+                                                    }
+
+                                                    // Save last Q&A
+                                                    if (currentQ && currentR) {
+                                                        questions.push({ question: currentQ, answer: currentR });
+                                                    }
+
+                                                    return questions;
+                                                };
+
                                                 if (content.personal_info || content.experiencia) {
+                                                    // Try to parse questions from plain text content
+                                                    let parsedQuestions = [];
+
+                                                    if (Array.isArray(content.respuestas) && content.respuestas.length > 0) {
+                                                        // Already in array format
+                                                        parsedQuestions = content.respuestas;
+                                                    } else if (typeof selectedApp.content === 'string') {
+                                                        // Parse from plain text
+                                                        parsedQuestions = parseQuestionsFromText(selectedApp.content);
+                                                    }
+
                                                     return (
                                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                                                             {content.experiencia && (<div> <h4 style={styles.subHeader}>Experiencia</h4> <p style={styles.textBlock}>{content.experiencia}</p> </div>)}
                                                             {content.motivacion && (<div> <h4 style={styles.subHeader}>Motivación</h4> <p style={styles.textBlock}>{content.motivacion}</p> </div>)}
                                                             {content.disponibilidad && (<div> <h4 style={styles.subHeader}>Disponibilidad</h4> <p style={styles.textBlock}>{content.disponibilidad}</p> </div>)}
-                                                            {Array.isArray(content.respuestas) && content.respuestas.length > 0 && (
+                                                            {parsedQuestions.length > 0 && (
                                                                 <div>
                                                                     <h4 style={styles.subHeader}>Test de Conocimiento</h4>
-                                                                    <QuestionReview questions={content.respuestas} />
+                                                                    <QuestionReview questions={parsedQuestions} />
                                                                 </div>
                                                             )}
                                                         </div>
