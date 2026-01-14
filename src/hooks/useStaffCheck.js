@@ -4,9 +4,9 @@ import { supabase } from '../services/supabase';
 // CONFIGURATION
 const MAIN_GUILD_ID = '1398525215134318713'; // Nacion MX (Roleplay)
 const STAFF_GUILD_ID = '1460059764494041211'; // Nacion MX Staff (Administration)
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
 // Allowed Roles (These IDs must exist in the guild being checked)
-// Note: If roles have different IDs in Staff Server, add them here too.
 const ALLOWED_ROLE_IDS = [
     '1412882240991658177', // Owner
     '1449856794980516032', // Co Owner
@@ -31,72 +31,128 @@ export const useStaffCheck = () => {
 
         setLoading(true);
         try {
-            // Helper function to fetch member from a specific guild
-            const fetchMember = async (guildId) => {
-                const response = await fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, {
-                    headers: { Authorization: `Bearer ${session.provider_token}` }
-                });
-                if (!response.ok) return null; // 404 or prohibited
-                return await response.json();
-            };
-
-            // Check cache first (Bumped to v2 to force refresh after permissions update)
-            const cacheKey = `discord_member_v2_${session.user.id}`;
+            // Check cache first with expiration
+            const cacheKey = `discord_member_v3_${session.user.id}`;
             const cached = sessionStorage.getItem(cacheKey);
 
             if (cached) {
-                const parsedCache = JSON.parse(cached);
-                console.log("Using cached staff status:", parsedCache);
-                setMemberData(parsedCache.memberData);
-                setIsStaff(parsedCache.isStaff);
-                return parsedCache.isStaff;
+                try {
+                    const parsedCache = JSON.parse(cached);
+                    const cacheAge = Date.now() - (parsedCache.timestamp || 0);
+
+                    if (cacheAge < CACHE_DURATION) {
+                        console.log('[StaffCheck] Using cached staff status (age: ' + Math.round(cacheAge / 1000) + 's)');
+                        setMemberData(parsedCache.memberData);
+                        setIsStaff(parsedCache.isStaff);
+                        setLoading(false);
+                        return parsedCache.isStaff;
+                    } else {
+                        console.log('[StaffCheck] Cache expired, refreshing...');
+                        sessionStorage.removeItem(cacheKey);
+                    }
+                } catch (e) {
+                    console.warn('[StaffCheck] Invalid cache, clearing...');
+                    sessionStorage.removeItem(cacheKey);
+                }
             }
 
+            // Helper function to fetch member with rate limit handling
+            const fetchMember = async (guildId, guildName) => {
+                try {
+                    const response = await fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, {
+                        headers: { Authorization: `Bearer ${session.provider_token}` }
+                    });
+
+                    if (response.status === 429) {
+                        console.warn(`[StaffCheck] Rate limited by Discord API for ${guildName}`);
+                        const retryAfter = response.headers.get('Retry-After') || 5;
+                        console.log(`[StaffCheck] Retry after ${retryAfter} seconds`);
+                        return null;
+                    }
+
+                    if (!response.ok) {
+                        console.warn(`[StaffCheck] ${guildName} returned ${response.status}`);
+                        return null;
+                    }
+
+                    return await response.json();
+                } catch (err) {
+                    console.error(`[StaffCheck] Error fetching ${guildName}:`, err);
+                    return null;
+                }
+            };
+
             // 1. Try Main Guild
-            console.log("Checking Main Guild...");
-            let data = await fetchMember(MAIN_GUILD_ID);
+            console.log('[StaffCheck] Checking Main Guild:', MAIN_GUILD_ID);
+            let data = await fetchMember(MAIN_GUILD_ID, 'Main Guild');
             let hasRole = false;
 
             if (data && data.roles) {
+                console.log('[StaffCheck] Main Guild roles:', data.roles);
                 hasRole = data.roles.some(roleId => ALLOWED_ROLE_IDS.includes(roleId));
                 if (hasRole) {
-                    console.log("Staff role found in Main Guild");
+                    console.log('[StaffCheck] ✅ Staff role found in Main Guild');
                     setMemberData(data);
                     setIsStaff(true);
+
+                    // Save to cache
+                    sessionStorage.setItem(cacheKey, JSON.stringify({
+                        isStaff: true,
+                        memberData: data,
+                        timestamp: Date.now()
+                    }));
+
+                    setLoading(false);
                     return true;
                 }
             }
 
             // 2. If not found, Try Staff Guild
-            console.log("Checking Staff Guild...");
-            const staffData = await fetchMember(STAFF_GUILD_ID);
+            console.log('[StaffCheck] Checking Staff Guild:', STAFF_GUILD_ID);
+            const staffData = await fetchMember(STAFF_GUILD_ID, 'Staff Guild');
 
             if (staffData && staffData.roles) {
-                // Merge roles or just check staff guild roles
-                // Assuming allowed IDs are the same or added to the list
+                console.log('[StaffCheck] Staff Guild roles:', staffData.roles);
                 const hasStaffRole = staffData.roles.some(roleId => ALLOWED_ROLE_IDS.includes(roleId));
                 if (hasStaffRole) {
-                    console.log("Staff role found in Staff Guild");
-                    // We use staff data for the profile if found here
+                    console.log('[StaffCheck] ✅ Staff role found in Staff Guild');
                     setMemberData(staffData);
                     setIsStaff(true);
+
+                    // Save to cache
+                    sessionStorage.setItem(cacheKey, JSON.stringify({
+                        isStaff: true,
+                        memberData: staffData,
+                        timestamp: Date.now()
+                    }));
+
+                    setLoading(false);
                     return true;
                 }
             }
 
             // 3. Fallback: No staff role found in either
-            console.warn("No staff roles found in Main or Staff guilds.");
+            console.warn('[StaffCheck] ❌ No staff roles found in Main or Staff guilds.');
+            console.warn('[StaffCheck] ALLOWED_ROLE_IDS:', ALLOWED_ROLE_IDS);
             setIsStaff(false);
-            setMemberData(data || staffData); // Return whatever data we found for profile pic
+            setMemberData(data || staffData);
+
+            // Cache negative result too (for shorter time)
+            sessionStorage.setItem(cacheKey, JSON.stringify({
+                isStaff: false,
+                memberData: data || staffData,
+                timestamp: Date.now()
+            }));
+
+            setLoading(false);
             return false;
 
         } catch (err) {
-            console.error("Staff check error:", err);
+            console.error('[StaffCheck] Error:', err);
             setError(err.message);
             setIsStaff(false);
-            return false;
-        } finally {
             setLoading(false);
+            return false;
         }
     }, []);
 
