@@ -29,6 +29,7 @@ const MainLayout = () => {
             if (myRoles.includes('1412882240991658177')) roleLabel = 'Owner';
             else if (myRoles.includes('1449856794980516032')) roleLabel = 'Co-Owner';
             else if (myRoles.includes('1412882245735420006')) roleLabel = 'Junta Directiva';
+            else if (myRoles.includes('1460064525297647812')) roleLabel = 'Junta Directiva'; // Staff Server ID
             else if (myRoles.includes('1412882248411381872')) roleLabel = 'Administrador';
             else if (myRoles.includes('1412887079612059660')) roleLabel = 'Staff';
             else if (myRoles.includes('1412887167654690908')) roleLabel = 'Staff Ent.';

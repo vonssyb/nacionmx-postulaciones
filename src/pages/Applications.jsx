@@ -75,6 +75,31 @@ const Applications = () => {
             .eq('id', selectedApp.id);
 
         if (!error) {
+            // If approved, trigger role assignment via bot webhook
+            if (newStatus === 'approved') {
+                try {
+                    const response = await fetch(`${import.meta.env.VITE_BOT_WEBHOOK_URL || 'http://localhost:3001'}/api/assign-postulante-role`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${import.meta.env.VITE_BOT_API_KEY || 'default'}`
+                        },
+                        body: JSON.stringify({
+                            discord_user_id: selectedApp.applicant_discord_id,
+                            application_id: selectedApp.id
+                        })
+                    });
+
+                    if (!response.ok) {
+                        console.error('Failed to assign role via webhook');
+                        alert('⚠️ Aplicación aprobada, pero el rol no pudo ser asignado automáticamente. Usa /aceptar postu en Discord.');
+                    }
+                } catch (webhookError) {
+                    console.error('Webhook error:', webhookError);
+                    alert('⚠️ Aplicación aprobada, pero el rol no pudo ser asignado automáticamente. Usa /aceptar postu en Discord.');
+                }
+            }
+
             fetchApplications();
             setSelectedApp(null);
         } else {

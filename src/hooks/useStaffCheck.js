@@ -2,13 +2,16 @@ import { useState, useCallback } from 'react';
 import { supabase } from '../services/supabase';
 
 // CONFIGURATION
-const GUILD_ID = '1398525215134318713'; // Nacion MX
+const MAIN_GUILD_ID = '1398525215134318713'; // Nacion MX (Roleplay)
+const STAFF_GUILD_ID = '1460059764494041211'; // Nacion MX Staff (Administration)
 
-// Allowed Roles
+// Allowed Roles (These IDs must exist in the guild being checked)
+// Note: If roles have different IDs in Staff Server, add them here too.
 const ALLOWED_ROLE_IDS = [
     '1412882240991658177', // Owner
     '1449856794980516032', // Co Owner
     '1412882245735420006', // Junta Directiva
+    '1460064525297647812', // Junta Directiva (Staff Server)
     '1412882248411381872', // Administrador
     '1412887079612059660', // Staff
     '1412887167654690908'  // Staff en entrenamiento
@@ -28,37 +31,64 @@ export const useStaffCheck = () => {
 
         setLoading(true);
         try {
-            // Check cache first
-            const cacheKey = `discord_member_${session.user.id}`;
+            // Helper function to fetch member from a specific guild
+            const fetchMember = async (guildId) => {
+                const response = await fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, {
+                    headers: { Authorization: `Bearer ${session.provider_token}` }
+                });
+                if (!response.ok) return null; // 404 or prohibited
+                return await response.json();
+            };
+
+            // Check cache first (Bumped to v2 to force refresh after permissions update)
+            const cacheKey = `discord_member_v2_${session.user.id}`;
             const cached = sessionStorage.getItem(cacheKey);
 
-            let data;
-
             if (cached) {
-                console.log("Using cached Discord member data");
-                data = JSON.parse(cached);
-            } else {
-                console.log("Fetching Discord member data from API...");
-                const response = await fetch(`https://discord.com/api/users/@me/guilds/${GUILD_ID}/member`, {
-                    headers: {
-                        Authorization: `Bearer ${session.provider_token}`
-                    }
-                });
-
-                if (response.status === 404) throw new Error("No eres miembro del servidor de Discord de Nación MX.");
-                if (response.status === 429) throw new Error("Discord API Rate Limit. Intenta más tarde.");
-                if (!response.ok) throw new Error("Error verificando roles en Discord.");
-
-                data = await response.json();
-                sessionStorage.setItem(cacheKey, JSON.stringify(data));
+                const parsedCache = JSON.parse(cached);
+                console.log("Using cached staff status:", parsedCache);
+                setMemberData(parsedCache.memberData);
+                setIsStaff(parsedCache.isStaff);
+                return parsedCache.isStaff;
             }
 
-            const userRoles = data.roles || [];
-            const hasRole = userRoles.some(roleId => ALLOWED_ROLE_IDS.includes(roleId));
+            // 1. Try Main Guild
+            console.log("Checking Main Guild...");
+            let data = await fetchMember(MAIN_GUILD_ID);
+            let hasRole = false;
 
-            setIsStaff(hasRole);
-            setMemberData(data);
-            return hasRole;
+            if (data && data.roles) {
+                hasRole = data.roles.some(roleId => ALLOWED_ROLE_IDS.includes(roleId));
+                if (hasRole) {
+                    console.log("Staff role found in Main Guild");
+                    setMemberData(data);
+                    setIsStaff(true);
+                    return true;
+                }
+            }
+
+            // 2. If not found, Try Staff Guild
+            console.log("Checking Staff Guild...");
+            const staffData = await fetchMember(STAFF_GUILD_ID);
+
+            if (staffData && staffData.roles) {
+                // Merge roles or just check staff guild roles
+                // Assuming allowed IDs are the same or added to the list
+                const hasStaffRole = staffData.roles.some(roleId => ALLOWED_ROLE_IDS.includes(roleId));
+                if (hasStaffRole) {
+                    console.log("Staff role found in Staff Guild");
+                    // We use staff data for the profile if found here
+                    setMemberData(staffData);
+                    setIsStaff(true);
+                    return true;
+                }
+            }
+
+            // 3. Fallback: No staff role found in either
+            console.warn("No staff roles found in Main or Staff guilds.");
+            setIsStaff(false);
+            setMemberData(data || staffData); // Return whatever data we found for profile pic
+            return false;
 
         } catch (err) {
             console.error("Staff check error:", err);
