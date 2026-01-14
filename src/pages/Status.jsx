@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getSavedUser } from '../services/discord'
-import { getUserApplication } from '../services/supabase'
+import { supabase } from '../services/supabase'
 import StatusBadge from '../components/StatusBadge'
 import './Status.css'
 
@@ -18,8 +18,15 @@ export default function Status() {
         }
 
         async function fetchApplication() {
-            const app = await getUserApplication(savedUser.user.id)
-            setApplication(app)
+            const { data } = await supabase
+                .from('applications')
+                .select('*')
+                .eq('applicant_discord_id', savedUser.user.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle()
+
+            setApplication(data)
             setLoading(false)
         }
 
