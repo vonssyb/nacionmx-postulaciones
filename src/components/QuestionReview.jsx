@@ -168,14 +168,11 @@ const styles = {
         gap: '1rem'
     },
     questionCard: {
-        border: '1px solid #e0e0e0',
+        border: '1px solid #444',
         borderRadius: '10px',
         padding: '1rem',
-        background: '#ffffff',
-        transition: 'box-shadow 0.2s',
-        ':hover': {
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-        }
+        background: '#1a1a1a',
+        transition: 'box-shadow 0.2s'
     },
     questionHeader: {
         fontSize: '0.85rem',
@@ -186,15 +183,15 @@ const styles = {
     questionText: {
         marginBottom: '0.75rem',
         fontSize: '0.95rem',
-        color: '#2c3e50'
+        color: '#e0e0e0'
     },
     answerText: {
         padding: '0.75rem',
-        background: '#f8f9fa',
+        background: '#2a2a2a',
         borderRadius: '6px',
         marginBottom: '1rem',
         fontSize: '0.9rem',
-        color: '#495057',
+        color: '#b0b0b0',
         lineHeight: '1.6'
     },
     scoreButtons: {
@@ -220,35 +217,35 @@ const styles = {
         opacity: 0.7
     },
     scoreBtnCorrect: {
-        background: '#ffffff',
+        background: '#1a1a1a',
         border: '2px solid #2ecc71',
         color: '#2ecc71'
     },
     scoreBtnCorrectActive: {
         background: '#2ecc71',
-        color: 'white',
+        color: '#1a1a1a',
         opacity: 1,
         transform: 'scale(1.05)'
     },
     scoreBtnPartial: {
-        background: '#ffffff',
+        background: '#1a1a1a',
         border: '2px solid #f39c12',
         color: '#f39c12'
     },
     scoreBtnPartialActive: {
         background: '#f39c12',
-        color: 'white',
+        color: '#1a1a1a',
         opacity: 1,
         transform: 'scale(1.05)'
     },
     scoreBtnIncorrect: {
-        background: '#ffffff',
+        background: '#1a1a1a',
         border: '2px solid #e74c3c',
         color: '#e74c3c'
     },
     scoreBtnIncorrectActive: {
         background: '#e74c3c',
-        color: 'white',
+        color: '#1a1a1a',
         opacity: 1,
         transform: 'scale(1.05)'
     },
@@ -258,14 +255,13 @@ const styles = {
     noteInput: {
         width: '100%',
         padding: '0.6rem',
-        border: '1px solid #dee2e6',
+        border: '1px solid #444',
         borderRadius: '6px',
         fontSize: '0.85rem',
         outline: 'none',
         transition: 'border-color 0.2s',
-        ':focus': {
-            borderColor: '#667eea'
-        }
+        background: '#2a2a2a',
+        color: '#e0e0e0'
     }
 };
 
