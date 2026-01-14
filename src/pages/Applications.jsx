@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, CheckCircle, XCircle, Eye, Calendar, User, History, MessageSquare, AlertCircle, Save } from 'lucide-react';
 import { supabase } from '../services/supabase';
+import QuestionReview from '../components/QuestionReview';
 
 const Applications = () => {
     const [applications, setApplications] = useState([]);
