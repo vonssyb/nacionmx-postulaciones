@@ -63,41 +63,6 @@ const MainLayout = () => {
                         <Users size={20} />
                         <span>Staff Hub</span>
                     </NavLink>
-
-                    <NavLink to="/dashboard/shifts" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Clock size={20} />
-                        <span>Turnos</span>
-                    </NavLink>
-
-                    <NavLink to="/dashboard/finance" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <DollarSign size={20} />
-                        <span>Finanzas</span>
-                    </NavLink>
-
-                    <NavLink to="/dashboard/bolo" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <AlertTriangle size={20} />
-                        <span>BOLO</span>
-                    </NavLink>
-
-                    <NavLink to="/dashboard/logs" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <ClipboardList size={20} />
-                        <span>Registros</span>
-                    </NavLink>
-
-                    <NavLink to="/dashboard/status" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Activity size={20} />
-                        <span>Estado</span>
-                    </NavLink>
-
-                    <NavLink to="/dashboard/admin" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Users size={20} />
-                        <span>Admin</span>
-                    </NavLink>
-
-                    <NavLink to="/dashboard/settings" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Settings size={20} />
-                        <span>Configuración</span>
-                    </NavLink>
                 </nav>
 
                 <div className="user-profile">
