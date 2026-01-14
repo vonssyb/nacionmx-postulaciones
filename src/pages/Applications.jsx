@@ -237,57 +237,54 @@ const Applications = () => {
                                     <div style={styles.detailSection}>
                                         <h3>Respuestas / Contenido</h3>
                                         {(() => {
+                                            // Helper function to parse plain text questions
+                                            const parseQuestionsFromText = (text) => {
+                                                if (!text || typeof text !== 'string') return [];
+
+                                                const questions = [];
+                                                const lines = text.split('\n');
+                                                let currentQ = null;
+                                                let currentR = null;
+
+                                                for (const line of lines) {
+                                                    const trimmed = line.trim();
+
+                                                    // Match Q1:, Q2:, etc.
+                                                    const qMatch = trimmed.match(/^Q(\d+):\s*(.+)/);
+                                                    if (qMatch) {
+                                                        // Save previous Q&A if exists
+                                                        if (currentQ && currentR) {
+                                                            questions.push({ question: currentQ, answer: currentR });
+                                                        }
+                                                        currentQ = qMatch[2];
+                                                        currentR = null;
+                                                    }
+
+                                                    // Match R:
+                                                    const rMatch = trimmed.match(/^R:\s*(.+)/);
+                                                    if (rMatch && currentQ) {
+                                                        currentR = rMatch[1];
+                                                    }
+                                                }
+
+                                                // Save last Q&A
+                                                if (currentQ && currentR) {
+                                                    questions.push({ question: currentQ, answer: currentR });
+                                                }
+
+                                                return questions;
+                                            };
+
                                             try {
                                                 const content = typeof selectedApp.content === 'string' ? JSON.parse(selectedApp.content) : selectedApp.content;
 
-                                                // Helper function to parse plain text questions
-                                                const parseQuestionsFromText = (text) => {
-                                                    if (!text || typeof text !== 'string') return [];
-
-                                                    const questions = [];
-                                                    const lines = text.split('\n');
-                                                    let currentQ = null;
-                                                    let currentR = null;
-
-                                                    for (const line of lines) {
-                                                        const trimmed = line.trim();
-
-                                                        // Match Q1:, Q2:, etc.
-                                                        const qMatch = trimmed.match(/^Q(\d+):\s*(.+)/);
-                                                        if (qMatch) {
-                                                            // Save previous Q&A if exists
-                                                            if (currentQ && currentR) {
-                                                                questions.push({ question: currentQ, answer: currentR });
-                                                            }
-                                                            currentQ = qMatch[2];
-                                                            currentR = null;
-                                                        }
-
-                                                        // Match R:
-                                                        const rMatch = trimmed.match(/^R:\s*(.+)/);
-                                                        if (rMatch && currentQ) {
-                                                            currentR = rMatch[1];
-                                                        }
-                                                    }
-
-                                                    // Save last Q&A
-                                                    if (currentQ && currentR) {
-                                                        questions.push({ question: currentQ, answer: currentR });
-                                                    }
-
-                                                    return questions;
-                                                };
-
-                                                if (content.personal_info || content.experiencia) {
-                                                    // Try to parse questions from plain text content
+                                                // Check if content is structured JSON
+                                                if (typeof content === 'object' && (content.personal_info || content.experiencia)) {
+                                                    // Structured content
                                                     let parsedQuestions = [];
 
                                                     if (Array.isArray(content.respuestas) && content.respuestas.length > 0) {
-                                                        // Already in array format
                                                         parsedQuestions = content.respuestas;
-                                                    } else if (typeof selectedApp.content === 'string') {
-                                                        // Parse from plain text
-                                                        parsedQuestions = parseQuestionsFromText(selectedApp.content);
                                                     }
 
                                                     return (
@@ -308,7 +305,22 @@ const Applications = () => {
                                                     return Object.entries(content).map(([key, val]) => (<p key={key}><strong>{key}:</strong> {val}</p>));
                                                 }
                                             } catch (e) {
-                                                return <p style={{ whiteSpace: 'pre-wrap' }}>{selectedApp.content}</p>;
+                                                // Plain text format - parse it
+                                                const textContent = selectedApp.content;
+                                                const parsedQuestions = parseQuestionsFromText(textContent);
+
+                                                if (parsedQuestions.length > 0) {
+                                                    return (
+                                                        <div>
+                                                            <p style={{ whiteSpace: 'pre-wrap', marginBottom: '2rem' }}>{textContent.split('RESPUESTAS TEST STAFF:')[0]}</p>
+                                                            <h4 style={styles.subHeader}>Test de Conocimiento ({parsedQuestions.length} preguntas)</h4>
+                                                            <QuestionReview questions={parsedQuestions} />
+                                                        </div>
+                                                    );
+                                                }
+
+                                                // Fallback: just show text
+                                                return <p style={{ whiteSpace: 'pre-wrap' }}>{textContent}</p>;
                                             }
                                         })()}
                                     </div>
