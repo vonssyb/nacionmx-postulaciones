@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from '../components/layout/MainLayout';
+import RoleGuard from '../components/auth/RoleGuard';
 import Applications from './Applications';
 import StaffHub from './StaffHub';
 import ShiftPanel from './ShiftPanel';
@@ -31,7 +32,6 @@ const Dashboard = () => {
                 <Route path="logs" element={<LogList />} />
                 <Route path="rules" element={<Rules />} />
                 <Route path="status" element={<Status />} />
-                <Route path="admin" element={<AdminPanel />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
