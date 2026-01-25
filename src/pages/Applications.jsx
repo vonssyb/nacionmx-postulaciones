@@ -18,16 +18,24 @@ const Applications = () => {
     const [reason, setReason] = useState('');
     const [processing, setProcessing] = useState(false);
 
+    // Grading State
+    const [reviewScores, setReviewScores] = useState({});
+    const [reviewNotes, setReviewNotes] = useState({});
+
     useEffect(() => {
         fetchApplications();
     }, []);
 
     useEffect(() => {
-        if (selectedApp && selectedApp.applicant_discord_id) {
-            fetchHistory(selectedApp.applicant_discord_id);
+        if (selectedApp) {
+            if (selectedApp.applicant_discord_id) fetchHistory(selectedApp.applicant_discord_id);
             setNotes(selectedApp.internal_notes || '');
             setReason(selectedApp.rejection_reason || '');
-            setActionState(null); // Reset action state
+
+            // Reset grading state
+            setReviewScores({});
+            setReviewNotes({});
+            setActionState(null);
         }
     }, [selectedApp]);
 
@@ -64,9 +72,19 @@ const Applications = () => {
         const newStatus = actionState === 'approve' ? 'approved' : 'rejected';
         const { data: { user } } = await supabase.auth.getUser();
 
+        // Calculate score summary if mapped
+        const totalScore = Object.values(reviewScores).reduce((acc, s) => acc + (s === 'correct' ? 1 : s === 'partial' ? 0.5 : 0), 0);
+        const maxScore = Object.keys(reviewScores).length; // Or total possible questions if we knew content length
+        const pct = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : 0;
+
+        let finalNotes = notes;
+        if (maxScore > 0) {
+            finalNotes = `[Calificación: ${totalScore}/${maxScore} (${pct}%)]\n\n${notes}`;
+        }
+
         const updateData = {
             status: newStatus,
-            internal_notes: notes,
+            internal_notes: finalNotes,
             rejection_reason: actionState === 'reject' ? reason : null,
             processed_by: user?.email || 'Admin',
             processed_at: new Date().toISOString()
@@ -318,7 +336,13 @@ const Applications = () => {
                                                             {parsedQuestions.length > 0 && (
                                                                 <div>
                                                                     <h4 style={styles.subHeader}>Test de Conocimiento</h4>
-                                                                    <QuestionReview questions={parsedQuestions} />
+                                                                    <QuestionReview
+                                                                        questions={parsedQuestions}
+                                                                        scores={reviewScores}
+                                                                        setScores={setReviewScores}
+                                                                        notes={reviewNotes}
+                                                                        setNotes={setReviewNotes}
+                                                                    />
                                                                 </div>
                                                             )}
                                                         </div>
@@ -337,7 +361,13 @@ const Applications = () => {
                                                         <div>
                                                             <p style={{ whiteSpace: 'pre-wrap', marginBottom: '2rem' }}>{textContent.split('RESPUESTAS TEST STAFF:')[0]}</p>
                                                             <h4 style={styles.subHeader}>Test de Conocimiento ({parsedQuestions.length} preguntas)</h4>
-                                                            <QuestionReview questions={parsedQuestions} />
+                                                            <QuestionReview
+                                                                questions={parsedQuestions}
+                                                                scores={reviewScores}
+                                                                setScores={setReviewScores}
+                                                                notes={reviewNotes}
+                                                                setNotes={setReviewNotes}
+                                                            />
                                                         </div>
                                                     );
                                                 }

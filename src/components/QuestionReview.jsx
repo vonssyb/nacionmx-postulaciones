@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 
-const QuestionReview = ({ questions }) => {
-    const [scores, setScores] = useState({});
-    const [notes, setNotes] = useState({});
+const QuestionReview = ({ questions, scores, setScores, notes, setNotes }) => {
 
     const handleScore = (index, scoreType) => {
         setScores(prev => ({
@@ -21,7 +19,7 @@ const QuestionReview = ({ questions }) => {
 
     const calculateScore = () => {
         const scoredQuestions = Object.keys(scores).length;
-        if (scoredQuestions === 0) return { total: 0, max: 0, percentage: 0 };
+        if (scoredQuestions === 0) return { total: 0, max: questions.length, percentage: 0 };
 
         const total = Object.values(scores).reduce((sum, score) => {
             if (score === 'correct') return sum + 1;
@@ -29,16 +27,12 @@ const QuestionReview = ({ questions }) => {
             return sum;
         }, 0);
 
-        const max = scoredQuestions;
+        const max = questions.length;
         const percentage = max > 0 ? Math.round((total / max) * 100) : 0;
         return { total, max, percentage };
     };
 
     const scoreData = calculateScore();
-
-    // Debug logging
-    console.log('[QuestionReview] Rendering with questions:', questions);
-    console.log('[QuestionReview] Questions array length:', questions?.length);
 
     if (!questions || questions.length === 0) {
         return <div style={{ padding: '1rem', color: '#e74c3c' }}>No hay preguntas disponibles para calificar</div>;
