@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, CheckCircle, XCircle, Eye, Calendar, User, History, MessageSquare, AlertCircle, Save } from 'lucide-react';
+import { FileText, CheckCircle, XCircle, Eye, Calendar, User, History, MessageSquare, AlertCircle, Save, Trash2 } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import QuestionReview from '../components/QuestionReview';
+import { useToast } from '../components/ui/Toast';
 
 const Applications = () => {
+    const toast = useToast();
     const [applications, setApplications] = useState([]);
     const [selectedApp, setSelectedApp] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -93,18 +95,22 @@ const Applications = () => {
 
                     if (!response.ok) {
                         console.error('Failed to assign role via webhook');
-                        alert('⚠️ Aplicación aprobada, pero el rol no pudo ser asignado automáticamente. Usa /aceptar postu en Discord.');
+                        toast.info('Aplicación aprobada, pero el rol no pudo ser asignado automáticamente. Usa /aceptar postu en Discord.');
+                    } else {
+                        toast.success('¡Aplicación aprobada y rol asignado correctamente!');
                     }
                 } catch (webhookError) {
                     console.error('Webhook error:', webhookError);
-                    alert('⚠️ Aplicación aprobada, pero el rol no pudo ser asignado automáticamente. Usa /aceptar postu en Discord.');
+                    toast.info('Aplicación aprobada, pero el rol no pudo ser asignado automáticamente. Usa /aceptar postu en Discord.');
                 }
+            } else {
+                toast.success('Postulación rechazada correctamente.');
             }
 
             fetchApplications();
             setSelectedApp(null);
         } else {
-            alert('Error actualizando: ' + error.message);
+            toast.error('Error actualizando: ' + error.message);
         }
         setProcessing(false);
     };
@@ -144,11 +150,28 @@ const Applications = () => {
             </div>
 
             {loading ? (
-                <div style={styles.loading}>Cargando postulaciones...</div>
+                <div style={styles.grid}>
+                    {[1, 2, 3].map(i => (
+                        <div key={i} style={{ ...styles.card, height: '200px' }} className="animate-pulse">
+                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}></div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ height: '20px', width: '60%', background: 'rgba(255,255,255,0.1)', marginBottom: '8px', borderRadius: '4px' }}></div>
+                                    <div style={{ height: '14px', width: '40%', background: 'rgba(255,255,255,0.1)', borderRadius: '4px' }}></div>
+                                </div>
+                            </div>
+                            <div style={{ height: '14px', width: '100%', background: 'rgba(255,255,255,0.1)', marginBottom: '8px', borderRadius: '4px' }}></div>
+                            <div style={{ height: '14px', width: '80%', background: 'rgba(255,255,255,0.1)', borderRadius: '4px' }}></div>
+                        </div>
+                    ))}
+                </div>
             ) : applications.length === 0 ? (
                 <div style={styles.empty}>
-                    <FileText size={64} color="var(--text-muted)" />
-                    <p>No se han recibido postulaciones aún</p>
+                    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRadius: '50%', marginBottom: '1.5rem', display: 'inline-flex' }}>
+                        <FileText size={48} color="var(--text-muted)" />
+                    </div>
+                    <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Sin postulaciones pendientes</h3>
+                    <p style={{ color: 'var(--text-muted)' }}>Todo está al día por ahora.</p>
                 </div>
             ) : (
                 <div style={styles.grid}>

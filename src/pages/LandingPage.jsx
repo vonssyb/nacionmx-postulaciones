@@ -61,10 +61,13 @@ export default function LandingPage() {
                     .select('*', { count: 'exact', head: true })
                     .eq('status', 'approved');
 
-                // Count "Active Staff" (Approximation: Users in 'profiles' with staff role, or just a static base + approved)
-                // For now, let's use a base number + new approvals to show growth
-                const baseStaff = 12;
-                const realStaff = baseStaff + (approvedApps || 0);
+                // Real Staff Count from Profiles
+                const { count: staffCount } = await supabase
+                    .from('profiles')
+                    .select('*', { count: 'exact', head: true })
+                    .neq('role', 'user'); // Assuming 'user' is default, others are staff
+
+                const realStaff = staffCount || (approvedApps + 5); // Fallback if 0
 
                 const rate = totalApps ? Math.round((approvedApps / totalApps) * 100) : 0;
 
