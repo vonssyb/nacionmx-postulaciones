@@ -3,6 +3,7 @@ import { FileText, CheckCircle, XCircle, Eye, Calendar, User, History, MessageSq
 import { supabase } from '../services/supabase';
 import QuestionReview from '../components/QuestionReview';
 import { useToast } from '../components/ui/Toast';
+import BackToHome from '../components/BackToHome';
 
 const Applications = () => {
     const toast = useToast();

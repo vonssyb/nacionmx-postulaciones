@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { supabase } from '../services/supabase';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Gamepad2 } from 'lucide-react'; // Using Gamepad2 as generic icon, ideally use Discord SVG
+import { Shield, Gamepad2 } from 'lucide-react';
+import BackToHome from '../components/BackToHome';
 
 const Login = () => {
     const [loading, setLoading] = useState(false);
@@ -28,6 +29,7 @@ const Login = () => {
 
     return (
         <div style={styles.container}>
+            <BackToHome />
             <div style={styles.card}>
                 <div style={styles.header}>
                     <div style={styles.iconWrapper}>
