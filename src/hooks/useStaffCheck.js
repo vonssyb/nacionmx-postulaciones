@@ -38,7 +38,7 @@ export const useStaffCheck = () => {
         setLoading(true);
         try {
             // Check cache first with expiration
-            const cacheKey = `discord_member_v4_${session.user.id}`;
+            const cacheKey = `discord_member_v5_${session.user.id}`;
             const cached = sessionStorage.getItem(cacheKey);
 
             if (cached) {
