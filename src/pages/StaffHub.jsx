@@ -94,7 +94,7 @@ const StaffHub = () => {
             <div className="page-header">
                 <div>
                     <h1 className="page-title">Directorio de Staff</h1>
-                    <p className="page-subtitle">Gestión de horas y actividad del equipo.</p>
+                    <p className="page-subtitle">Visualiza el equipo activo, horas trabajadas y turnos completados por cada miembro del staff.</p>
                 </div>
                 {/* Placeholder for Add Member */}
                 <button className="btn-add">

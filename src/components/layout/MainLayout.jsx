@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Shield, FileText, Settings, LogOut, Users, Clock, DollarSign, AlertTriangle, UserX, ClipboardList, Book, Activity } from 'lucide-react';
+import { Shield, FileText, Settings, LogOut, Users, Clock, DollarSign, AlertTriangle, UserX, ClipboardList, Book, Activity, Home } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 import { useDiscordMember } from '../auth/RoleGuard';
 import './MainLayout.css';
@@ -47,10 +47,12 @@ const MainLayout = () => {
     return (
         <div className="layout-container">
             <aside className="sidebar">
-                <div className="sidebar-header">
+                <div className="sidebar-header" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }} title="Volver al inicio">
                     <Shield size={32} color="var(--primary)" />
-                    <span className="sidebar-title">NACIÓN MX</span>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Portal de Postulaciones</p>
+                    <div>
+                        <span className="sidebar-title">NACIÓN MX</span>
+                        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Portal de Postulaciones</p>
+                    </div>
                 </div>
 
                 <nav className="nav-links">

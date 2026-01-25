@@ -96,6 +96,59 @@ const Applications = () => {
             .eq('id', selectedApp.id);
 
         if (!error) {
+            // Send status notification webhook to applicant
+            const webhookUrl = import.meta.env.VITE_DISCORD_WEBHOOK_URL;
+            if (webhookUrl) {
+                try {
+                    const statusColor = newStatus === 'approved' ? 0x57F287 : 0xED4245; // Verde o Rojo
+                    const statusEmoji = newStatus === 'approved' ? '✅' : '❌';
+                    const statusTitle = newStatus === 'approved' ? 'Postulación Aprobada' : 'Postulación Rechazada';
+
+                    let description = newStatus === 'approved'
+                        ? `¡Felicidades! Tu postulación para **Staff** ha sido **APROBADA**.`
+                        : `Tu postulación para **Staff** ha sido **RECHAZADA**.`;
+
+                    const fields = [
+                        { name: '👤 Candidato', value: `<@${selectedApp.discord_id}>`, inline: true },
+                        { name: '🎮 Roblox', value: selectedApp.roblox_username, inline: true }
+                    ];
+
+                    if (maxScore > 0) {
+                        fields.push({
+                            name: '📊 Calificación',
+                            value: `${totalScore}/${maxScore} (${pct}%)`,
+                            inline: true
+                        });
+                    }
+
+                    if (newStatus === 'rejected' && reason) {
+                        fields.push({
+                            name: '📝 Razón',
+                            value: reason,
+                            inline: false
+                        });
+                    }
+
+                    await fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            content: `<@${selectedApp.discord_id}>`, // Mention the user
+                            embeds: [{
+                                title: `${statusEmoji} ${statusTitle}`,
+                                description,
+                                color: statusColor,
+                                fields,
+                                footer: { text: 'Sistema de Postulaciones | Nación MX' },
+                                timestamp: new Date().toISOString()
+                            }]
+                        })
+                    });
+                } catch (webhookError) {
+                    console.error('Error sending status webhook:', webhookError);
+                }
+            }
+
             // If approved, trigger role assignment via bot webhook
             if (newStatus === 'approved') {
                 try {
@@ -220,16 +273,16 @@ const Applications = () => {
                                 </div>
                                 <div style={styles.cardBody}>
                                     <div style={styles.infoRow}>
-                                        <span style={styles.label}>Tipo:</span>
+                                        <span style={styles.label}>📋 Tipo:</span>
                                         <span style={styles.value}>{app.type}</span>
                                     </div>
                                     <div style={styles.infoRow}>
-                                        <span style={styles.label}>Edad:</span>
+                                        <span style={styles.label}>🎂 Edad:</span>
                                         <span style={styles.value}>{edad}</span>
                                     </div>
                                     <div style={styles.infoRow}>
-                                        <span style={styles.label}>Experiencia:</span>
-                                        <span style={styles.value}>{exp}</span>
+                                        <span style={styles.label}>💼 Experiencia:</span>
+                                        <span style={{ ...styles.value, fontSize: '0.85rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{exp}</span>
                                     </div>
                                 </div>
                                 <button onClick={() => setSelectedApp(app)} style={styles.viewBtn}>
@@ -484,7 +537,7 @@ const styles = {
     name: { fontSize: '1.1rem', fontWeight: '700', margin: 0 },
     date: { fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' },
     cardBody: { marginBottom: '1.25rem' },
-    infoRow: { display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid var(--border)' },
+    infoRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.6rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' },
     label: { color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: '600' },
     value: { fontWeight: '700' },
     viewBtn: { width: '100%', background: 'var(--primary)', color: 'black', border: 'none', padding: '0.75rem', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: '0.2s' },

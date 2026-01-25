@@ -160,6 +160,37 @@ export default function Apply() {
         const result = await createApplication(applicationData)
 
         if (result.success) {
+            // Send Discord webhook notification
+            const webhookUrl = import.meta.env.VITE_DISCORD_WEBHOOK_URL
+            if (webhookUrl) {
+                try {
+                    await fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            embeds: [{
+                                title: '📝 Nueva Postulación de Staff',
+                                description: `Un nuevo candidato ha enviado su postulación al sistema.`,
+                                color: 0x57F287, // Verde
+                                fields: [
+                                    { name: '👤 Discord', value: `${savedUser.user.username}`, inline: true },
+                                    { name: '🎮 Roblox', value: `${robloxData.displayName} (@${robloxData.username})`, inline: true },
+                                    { name: '🆔 Discord ID', value: savedUser.user.id, inline: true }
+                                ],
+                                thumbnail: {
+                                    url: `https://cdn.discordapp.com/avatars/${savedUser.user.id}/${savedUser.user.avatar}.png`
+                                },
+                                footer: { text: 'Sistema de Postulaciones | Nación MX' },
+                                timestamp: new Date().toISOString()
+                            }]
+                        })
+                    })
+                } catch (webhookError) {
+                    console.error('Error sending webhook:', webhookError)
+                    // No bloquear el flujo si falla el webhook
+                }
+            }
+
             navigate('/status')
         } else {
             alert(`Error al enviar postulación: ${result.error}`)
