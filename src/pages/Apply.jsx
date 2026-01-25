@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { getSavedUser } from '../services/discord'
 import { getRobloxUserByUsername } from '../services/roblox'
 import { getApplicationQuestions, createApplication, canUserApply } from '../services/supabase'
+import BackToHome from '../components/BackToHome'
 import './Apply.css'
 
 export default function Apply() {
@@ -222,189 +223,192 @@ export default function Apply() {
     }
 
     return (
-        <div className="apply-container">
-            <div className="apply-stepper">
-                <div className="progress-bar">
-                    <div
-                        className="progress-fill"
-                        style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
-                    ></div>
+        <>
+            <BackToHome />
+            <div className="apply-container">
+                <div className="apply-stepper">
+                    <div className="progress-bar">
+                        <div
+                            className="progress-fill"
+                            style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
+                        ></div>
+                    </div>
+                    <div className="step-indicator">
+                        Paso {currentStep + 1} de {totalSteps}
+                    </div>
                 </div>
-                <div className="step-indicator">
-                    Paso {currentStep + 1} de {totalSteps}
-                </div>
-            </div>
 
-            <div className="glass-card apply-form-card">
-                <form onSubmit={handleSubmit}>
-                    {currentStep === 0 && (
-                        <div className="step-section animation-slide-in">
-                            <div className="section-header">
-                                <span className="section-badge">00</span>
-                                <h2>VERIFICACIÓN DE IDENTIDAD</h2>
-                                <p>Vincula tu cuenta de Roblox para continuar.</p>
-                            </div>
-
-                            <div className="roblox-verify-box">
-                                <div className="input-group">
-                                    <label>Username de Roblox</label>
-                                    <div className="input-with-button">
-                                        <input
-                                            type="text"
-                                            value={robloxUsername}
-                                            onChange={(e) => setRobloxUsername(e.target.value)}
-                                            placeholder="Ingresa tu usuario"
-                                            className="premium-input"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={handleRobloxVerify}
-                                            className="btn-verify"
-                                        >
-                                            VERIFICAR
-                                        </button>
-                                    </div>
+                <div className="glass-card apply-form-card">
+                    <form onSubmit={handleSubmit}>
+                        {currentStep === 0 && (
+                            <div className="step-section animation-slide-in">
+                                <div className="section-header">
+                                    <span className="section-badge">00</span>
+                                    <h2>VERIFICACIÓN DE IDENTIDAD</h2>
+                                    <p>Vincula tu cuenta de Roblox para continuar.</p>
                                 </div>
 
-                                {robloxError && <p className="error-text">{robloxError}</p>}
-
-                                {robloxData && (
-                                    <div className="roblox-profile animation-fade-in">
-                                        <div className="profile-check">✓</div>
-                                        <div className="profile-details">
-                                            <h3>{robloxData.displayName}</h3>
-                                            <span>@{robloxData.username}</span>
-                                            <small>ID: {robloxData.id}</small>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {currentStep > 0 && currentStep <= sections.length && (
-                        <div className="step-section animation-slide-in" key={currentStep}>
-                            <div className="section-header">
-                                <span className="section-badge">{currentStep < 10 ? `0${currentStep}` : currentStep}</span>
-                                <h2>{sections[currentStep - 1].title}</h2>
-                                <p className="section-subtitle">Pregunta {sections[currentStep - 1].questions[0]?.order_index || 0} a {sections[currentStep - 1].questions[sections[currentStep - 1].questions.length - 1]?.order_index || 0}</p>
-                            </div>
-
-                            <div className="questions-grid">
-                                {sections[currentStep - 1].questions.map((q) => (
-                                    <div key={q.id} className="form-group premium-field-box">
-                                        <label className="premium-label">
-                                            {q.question_text}
-                                            {q.required && <span className="req-star">*</span>}
-                                        </label>
-
-                                        {q.question_type === 'text' && (
+                                <div className="roblox-verify-box">
+                                    <div className="input-group">
+                                        <label>Username de Roblox</label>
+                                        <div className="input-with-button">
                                             <input
                                                 type="text"
-                                                value={formData[q.question_key] || ''}
-                                                onChange={(e) => handleInputChange(q.question_key, e.target.value)}
-                                                placeholder={q.placeholder || 'Escribe tu respuesta...'}
+                                                value={robloxUsername}
+                                                onChange={(e) => setRobloxUsername(e.target.value)}
+                                                placeholder="Ingresa tu usuario"
                                                 className="premium-input"
                                             />
-                                        )}
-
-                                        {q.question_type === 'number' && (
-                                            <input
-                                                type="number"
-                                                value={formData[q.question_key] || ''}
-                                                onChange={(e) => handleInputChange(q.question_key, e.target.value)}
-                                                placeholder={q.placeholder || '0'}
-                                                className="premium-input"
-                                            />
-                                        )}
-
-                                        {q.question_type === 'textarea' && (
-                                            <textarea
-                                                value={formData[q.question_key] || ''}
-                                                onChange={(e) => handleInputChange(q.question_key, e.target.value)}
-                                                placeholder={q.placeholder || 'Desarrolla tu respuesta aquí...'}
-                                                rows={4}
-                                                className="premium-input premium-textarea"
-                                            />
-                                        )}
-
-                                        {q.question_type === 'select' && (
-                                            <select
-                                                value={formData[q.question_key] || ''}
-                                                onChange={(e) => handleInputChange(q.question_key, e.target.value)}
-                                                className="premium-input"
+                                            <button
+                                                type="button"
+                                                onClick={handleRobloxVerify}
+                                                className="btn-verify"
                                             >
-                                                <option value="">Seleccionar una opción...</option>
-                                                {(q.options || q.validation_rules?.options)?.map(opt => (
-                                                    <option key={opt} value={opt}>{opt}</option>
-                                                ))}
-                                            </select>
-                                        )}
+                                                VERIFICAR
+                                            </button>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
-                    {currentStep === totalSteps - 1 && (
-                        <div className="step-section animation-slide-in">
-                            <div className="section-header">
-                                <span className="section-badge">FIN</span>
-                                <h2>REVISIÓN FINAL</h2>
-                                <p>Por favor, revisa tus respuestas antes de enviar la postulación oficial.</p>
-                            </div>
+                                    {robloxError && <p className="error-text">{robloxError}</p>}
 
-                            <div className="review-summary">
-                                <div className="review-item-group">
-                                    <h3>Información de Identidad</h3>
-                                    <div className="review-stat">
-                                        <span>Roblox:</span>
-                                        <strong>{robloxData.displayName} (@{robloxData.username})</strong>
-                                    </div>
-                                    <div className="review-stat">
-                                        <span>Discord:</span>
-                                        <strong>{savedUser.user.username}</strong>
-                                    </div>
+                                    {robloxData && (
+                                        <div className="roblox-profile animation-fade-in">
+                                            <div className="profile-check">✓</div>
+                                            <div className="profile-details">
+                                                <h3>{robloxData.displayName}</h3>
+                                                <span>@{robloxData.username}</span>
+                                                <small>ID: {robloxData.id}</small>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {currentStep > 0 && currentStep <= sections.length && (
+                            <div className="step-section animation-slide-in" key={currentStep}>
+                                <div className="section-header">
+                                    <span className="section-badge">{currentStep < 10 ? `0${currentStep}` : currentStep}</span>
+                                    <h2>{sections[currentStep - 1].title}</h2>
+                                    <p className="section-subtitle">Pregunta {sections[currentStep - 1].questions[0]?.order_index || 0} a {sections[currentStep - 1].questions[sections[currentStep - 1].questions.length - 1]?.order_index || 0}</p>
                                 </div>
 
-                                {sections.map(section => (
-                                    <div key={section.id} className="review-item-group">
-                                        <h3>{section.title}</h3>
-                                        {section.questions.map(q => (
-                                            <div key={q.id} className="review-q-row">
-                                                <span className="q-text">{q.question_text}:</span>
-                                                <span className="q-ans">{formData[q.question_key] || <i>No respondido</i>}</span>
-                                            </div>
-                                        ))}
+                                <div className="questions-grid">
+                                    {sections[currentStep - 1].questions.map((q) => (
+                                        <div key={q.id} className="form-group premium-field-box">
+                                            <label className="premium-label">
+                                                {q.question_text}
+                                                {q.required && <span className="req-star">*</span>}
+                                            </label>
+
+                                            {q.question_type === 'text' && (
+                                                <input
+                                                    type="text"
+                                                    value={formData[q.question_key] || ''}
+                                                    onChange={(e) => handleInputChange(q.question_key, e.target.value)}
+                                                    placeholder={q.placeholder || 'Escribe tu respuesta...'}
+                                                    className="premium-input"
+                                                />
+                                            )}
+
+                                            {q.question_type === 'number' && (
+                                                <input
+                                                    type="number"
+                                                    value={formData[q.question_key] || ''}
+                                                    onChange={(e) => handleInputChange(q.question_key, e.target.value)}
+                                                    placeholder={q.placeholder || '0'}
+                                                    className="premium-input"
+                                                />
+                                            )}
+
+                                            {q.question_type === 'textarea' && (
+                                                <textarea
+                                                    value={formData[q.question_key] || ''}
+                                                    onChange={(e) => handleInputChange(q.question_key, e.target.value)}
+                                                    placeholder={q.placeholder || 'Desarrolla tu respuesta aquí...'}
+                                                    rows={4}
+                                                    className="premium-input premium-textarea"
+                                                />
+                                            )}
+
+                                            {q.question_type === 'select' && (
+                                                <select
+                                                    value={formData[q.question_key] || ''}
+                                                    onChange={(e) => handleInputChange(q.question_key, e.target.value)}
+                                                    className="premium-input"
+                                                >
+                                                    <option value="">Seleccionar una opción...</option>
+                                                    {(q.options || q.validation_rules?.options)?.map(opt => (
+                                                        <option key={opt} value={opt}>{opt}</option>
+                                                    ))}
+                                                </select>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {currentStep === totalSteps - 1 && (
+                            <div className="step-section animation-slide-in">
+                                <div className="section-header">
+                                    <span className="section-badge">FIN</span>
+                                    <h2>REVISIÓN FINAL</h2>
+                                    <p>Por favor, revisa tus respuestas antes de enviar la postulación oficial.</p>
+                                </div>
+
+                                <div className="review-summary">
+                                    <div className="review-item-group">
+                                        <h3>Información de Identidad</h3>
+                                        <div className="review-stat">
+                                            <span>Roblox:</span>
+                                            <strong>{robloxData.displayName} (@{robloxData.username})</strong>
+                                        </div>
+                                        <div className="review-stat">
+                                            <span>Discord:</span>
+                                            <strong>{savedUser.user.username}</strong>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
 
-                            <div className="warning-box glass-card">
-                                <p>⚠️ Al presionar enviar, tu postulación será revisada por el equipo de Recursos Humanos. No podrás editarla posteriormente.</p>
+                                    {sections.map(section => (
+                                        <div key={section.id} className="review-item-group">
+                                            <h3>{section.title}</h3>
+                                            {section.questions.map(q => (
+                                                <div key={q.id} className="review-q-row">
+                                                    <span className="q-text">{q.question_text}:</span>
+                                                    <span className="q-ans">{formData[q.question_key] || <i>No respondido</i>}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="warning-box glass-card">
+                                    <p>⚠️ Al presionar enviar, tu postulación será revisada por el equipo de Recursos Humanos. No podrás editarla posteriormente.</p>
+                                </div>
                             </div>
+                        )}
+
+                        <div className="form-actions">
+                            {currentStep > 0 && (
+                                <button type="button" onClick={prevStep} className="btn-secondary">
+                                    ANTERIOR
+                                </button>
+                            )}
+
+                            {currentStep < totalSteps - 1 ? (
+                                <button type="button" onClick={nextStep} className="btn-primary">
+                                    SIGUIENTE
+                                </button>
+                            ) : (
+                                <button type="submit" disabled={submitting} className="btn-primary btn-submit">
+                                    {submitting ? 'TRANSMITIENDO...' : 'ENVIAR POSTULACIÓN'}
+                                </button>
+                            )}
                         </div>
-                    )}
-
-                    <div className="form-actions">
-                        {currentStep > 0 && (
-                            <button type="button" onClick={prevStep} className="btn-secondary">
-                                ANTERIOR
-                            </button>
-                        )}
-
-                        {currentStep < totalSteps - 1 ? (
-                            <button type="button" onClick={nextStep} className="btn-primary">
-                                SIGUIENTE
-                            </button>
-                        ) : (
-                            <button type="submit" disabled={submitting} className="btn-primary btn-submit">
-                                {submitting ? 'TRANSMITIENDO...' : 'ENVIAR POSTULACIÓN'}
-                            </button>
-                        )}
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
-        </div>
+        </>
     )
 }
