@@ -77,15 +77,32 @@ const RoleGuard = ({ children }) => {
                         No tienes los permisos de Staff necesarios para ver esta sección.
                     </p>
 
-                    <div style={{ background: '#000', padding: '1rem', borderRadius: '8px', textAlign: 'left', marginBottom: '1.5rem' }}>
-                        <p style={{ color: '#555', fontSize: '0.8rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Tus Roles Detectados (Debug):</p>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                            {memberData?.roles?.map(roleId => (
-                                <span key={roleId} style={{ background: '#333', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem', fontFamily: 'monospace' }}>
-                                    {roleId}
-                                </span>
-                            )) || <span style={{ color: '#888' }}>Ningún rol detectado</span>}
-                        </div>
+                    <div style={{ background: '#000', padding: '1rem', borderRadius: '8px', textAlign: 'left', marginBottom: '1.5rem', maxHeight: '200px', overflowY: 'auto' }}>
+                        <p style={{ color: '#555', fontSize: '0.8rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Debug Info:</p>
+
+                        {/* ROLES */}
+                        {memberData?.roles && memberData.roles.length > 0 ? (
+                            <div style={{ marginBottom: '1rem' }}>
+                                <span style={{ color: '#aaa', fontSize: '0.8rem' }}>Roles: </span>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '4px' }}>
+                                    {memberData.roles.map(roleId => (
+                                        <span key={roleId} style={{ background: '#333', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontFamily: 'monospace' }}>
+                                            {roleId}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <p style={{ color: '#e74c3c', fontSize: '0.9rem' }}>⚠️ No se detectaron roles.</p>
+                        )}
+
+                        {/* API ERRORS */}
+                        {memberData?.debug && (
+                            <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#888', fontFamily: 'monospace' }}>
+                                <div>Main Guild: {JSON.stringify(memberData.debug.mainGuild?.error || (memberData.debug.mainGuild?.roles ? 'OK' : 'No Data'))}</div>
+                                <div>Staff Guild: {JSON.stringify(memberData.debug.staffGuild?.error || (memberData.debug.staffGuild?.roles ? 'OK' : 'No Data'))}</div>
+                            </div>
+                        )}
                     </div>
 
                     <div style={{ display: 'flex', gap: '1rem' }}>

@@ -70,38 +70,41 @@ export const useStaffCheck = () => {
                     });
 
                     if (response.status === 429) {
-                        console.warn(`[StaffCheck] Rate limited by Discord API for ${guildName}`);
                         const retryAfter = response.headers.get('Retry-After') || 5;
-                        console.log(`[StaffCheck] Retry after ${retryAfter} seconds`);
-                        return null;
+                        console.warn(`[StaffCheck] Rate limited by Discord API for ${guildName}. Retry after ${retryAfter}s`);
+                        return { error: `Rate Limit (${retryAfter}s)` };
                     }
 
                     if (!response.ok) {
                         console.warn(`[StaffCheck] ${guildName} returned ${response.status}`);
-                        return null;
+                        // Try to parse error body
+                        let errBody = "";
+                        try { errBody = await response.text(); } catch (e) { }
+                        return { error: `${response.status} ${response.statusText}`, details: errBody };
                     }
 
                     return await response.json();
                 } catch (err) {
                     console.error(`[StaffCheck] Error fetching ${guildName}:`, err);
-                    return null;
+                    return { error: err.message };
                 }
             };
 
             // 1. Try Main Guild
             console.log('[StaffCheck] Checking Main Guild:', MAIN_GUILD_ID);
             let data = await fetchMember(MAIN_GUILD_ID, 'Main Guild');
-            let hasRole = false;
+
+            // Debug Info accumulator
+            let debugLog = { mainGuild: data };
 
             if (data && data.roles) {
                 console.log('[StaffCheck] Main Guild roles:', data.roles);
-                hasRole = data.roles.some(roleId => ALLOWED_ROLE_IDS.includes(roleId));
+                const hasRole = data.roles.some(roleId => ALLOWED_ROLE_IDS.includes(roleId));
                 if (hasRole) {
                     console.log('[StaffCheck] ✅ Staff role found in Main Guild');
                     setMemberData(data);
                     setIsStaff(true);
 
-                    // Save to cache
                     sessionStorage.setItem(cacheKey, JSON.stringify({
                         isStaff: true,
                         memberData: data,
@@ -116,6 +119,7 @@ export const useStaffCheck = () => {
             // 2. If not found, Try Staff Guild
             console.log('[StaffCheck] Checking Staff Guild:', STAFF_GUILD_ID);
             const staffData = await fetchMember(STAFF_GUILD_ID, 'Staff Guild');
+            debugLog.staffGuild = staffData;
 
             if (staffData && staffData.roles) {
                 console.log('[StaffCheck] Staff Guild roles:', staffData.roles);
@@ -125,7 +129,6 @@ export const useStaffCheck = () => {
                     setMemberData(staffData);
                     setIsStaff(true);
 
-                    // Save to cache
                     sessionStorage.setItem(cacheKey, JSON.stringify({
                         isStaff: true,
                         memberData: staffData,
@@ -139,14 +142,18 @@ export const useStaffCheck = () => {
 
             // 3. Fallback: No staff role found in either
             console.warn('[StaffCheck] ❌ No staff roles found in Main or Staff guilds.');
-            console.warn('[StaffCheck] ALLOWED_ROLE_IDS:', ALLOWED_ROLE_IDS);
             setIsStaff(false);
-            setMemberData(data || staffData);
 
-            // Cache negative result too (for shorter time)
+            // Pass the debug info so RoleGuard can show it
+            setMemberData({
+                roles: [],
+                debug: debugLog,
+                error: "No matching roles found in either guild."
+            });
+
             sessionStorage.setItem(cacheKey, JSON.stringify({
                 isStaff: false,
-                memberData: data || staffData,
+                memberData: { roles: [], debug: debugLog },
                 timestamp: Date.now()
             }));
 
