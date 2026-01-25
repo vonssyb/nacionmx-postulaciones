@@ -112,13 +112,39 @@ const ApplyPage = () => {
         avatar: user.user_metadata.avatar_url,
         email: user.email
       });
-      setLoading(false);
 
+      // AUTO-VERIFICATION WITH BOT DATABASE
+      try {
+        const { data: linkData } = await supabase
+          .from('roblox_discord_links')
+          .select('*')
+          .eq('discord_user_id', user.id)
+          .maybeSingle();
+
+        if (linkData) {
+          console.log("Auto-verified via Bot DB:", linkData);
+          setRobloxData({
+            id: linkData.roblox_id || "UnknownID", // Fallback if ID not in link table
+            username: linkData.roblox_username,
+            avatar: `https://tr.rbxcdn.com/30c6d27ae85a3c89658245842c139369/150/150/AvatarHeadshot/Png`, // Stock/Placeholder or fetch real one
+            accountAge: "Verificado por Bot", // Metadata not available in simple link table
+            displayName: linkData.roblox_username
+          });
+          // Also save to local storage to persist
+          localStorage.setItem('nmx_roblox_session', JSON.stringify({
+            id: linkData.roblox_id || "UnknownID",
+            username: linkData.roblox_username,
+            avatar: `https://tr.rbxcdn.com/30c6d27ae85a3c89658245842c139369/150/150/AvatarHeadshot/Png`
+          }));
+        }
+      } catch (err) {
+        console.error("Auto-verification failed:", err);
+      }
+
+      setLoading(false);
 
       // CHECK EXISTING APPLICATIONS
       checkExistingApplications(user.id);
-
-      setLoading(false);
     }
   };
 
