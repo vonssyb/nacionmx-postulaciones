@@ -7,6 +7,7 @@ const STAFF_GUILD_ID = '1460059764494041211'; // Nacion MX Staff (Administration
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
 // Allowed Roles (These IDs must exist in the guild being checked)
+// Allowed Roles (These IDs must exist in the guild being checked)
 const ALLOWED_ROLE_IDS = [
     '1412882240991658177', // Owner
     '1449856794980516032', // Co Owner
@@ -14,7 +15,11 @@ const ALLOWED_ROLE_IDS = [
     '1460064525297647812', // Junta Directiva (Staff Server)
     '1412882248411381872', // Administrador
     '1412887079612059660', // Staff
-    '1412887167654690908'  // Staff en entrenamiento
+    '1412887167654690908', // Staff Separator (Legacy check)
+    '1457558479287091417', // Staff de Entrenamiento
+    '1458597791906533477', // Tercer Al Mando
+    '1450242319121911848', // Key Mod
+    '1454985316292100226'  // Encargado Staff
 ];
 
 export const useStaffCheck = () => {
