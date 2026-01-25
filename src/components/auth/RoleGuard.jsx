@@ -64,33 +64,49 @@ const RoleGuard = ({ children }) => {
         };
     }, []);
 
-    // Redirect logic for unauthorized users
-    useEffect(() => {
-        if (!sessionLoading && !checkingRole) {
-            if (!isStaff) {
-                // User is logged in but not staff
-                // Redirect to Home with a message
-                alert("⛔ Acceso Restringido: No tienes permisos de Staff para ver esta sección.");
-                navigate('/');
-            }
-        }
-    }, [sessionLoading, checkingRole, isStaff, navigate]);
+    // If we are here, isStaff must be true (or useEffect would have redirected)
+    // We render children only if authorized
 
-    if (sessionLoading || checkingRole) {
+    // DEBUG UI FOR UNAUTHORIZED USERS
+    if (!sessionLoading && !checkingRole && !isStaff) {
         return (
             <div style={styles.center}>
-                <Loader size={48} className="animate-spin" color="var(--primary)" />
-                <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Verificando credenciales...</p>
-                <style>{`
-                    .animate-spin { animation: spin 1s linear infinite; }
-                    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                `}</style>
+                <div style={styles.card}>
+                    <h1 style={{ color: '#e74c3c', fontSize: '1.5rem', marginBottom: '1rem' }}>⛔ Acceso Restringido</h1>
+                    <p style={{ color: '#aaa', marginBottom: '1.5rem' }}>
+                        No tienes los permisos de Staff necesarios para ver esta sección.
+                    </p>
+
+                    <div style={{ background: '#000', padding: '1rem', borderRadius: '8px', textAlign: 'left', marginBottom: '1.5rem' }}>
+                        <p style={{ color: '#555', fontSize: '0.8rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Tus Roles Detectados (Debug):</p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                            {memberData?.roles?.map(roleId => (
+                                <span key={roleId} style={{ background: '#333', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem', fontFamily: 'monospace' }}>
+                                    {roleId}
+                                </span>
+                            )) || <span style={{ color: '#888' }}>Ningún rol detectado</span>}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <button
+                            onClick={() => { supabase.auth.signOut(); navigate('/login'); }}
+                            style={{ ...styles.button, background: '#e74c3c' }}
+                        >
+                            Cerrar Sesión
+                        </button>
+                        <button
+                            onClick={() => navigate('/')}
+                            style={styles.button}
+                        >
+                            Volver al Inicio
+                        </button>
+                    </div>
+                </div>
             </div>
         );
     }
 
-    // If we are here, isStaff must be true (or useEffect would have redirected)
-    // We render children only if authorized
     return (
         <DiscordContext.Provider value={memberData}>
             {isStaff ? children : null}
@@ -107,6 +123,27 @@ const styles = {
         justifyContent: 'center',
         background: 'var(--bg-dark)',
         color: 'var(--text-main)',
+    },
+    card: {
+        background: 'var(--bg-card)',
+        padding: '2rem',
+        borderRadius: '12px',
+        border: '1px solid var(--border)',
+        maxWidth: '500px',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+    },
+    button: {
+        background: 'var(--bg-card-hover)',
+        border: '1px solid var(--border)',
+        color: 'white',
+        padding: '0.75rem 1.5rem',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontWeight: 'bold'
     }
 };
 
