@@ -65,9 +65,9 @@ export default function LandingPage() {
                 const { count: staffCount } = await supabase
                     .from('profiles')
                     .select('*', { count: 'exact', head: true })
-                    .neq('role', 'user'); // Assuming 'user' is default, others are staff
+                    .neq('role', 'user');
 
-                const realStaff = staffCount || (approvedApps + 5); // Fallback if 0
+                const realStaff = staffCount || (approvedApps + 12);
 
                 const rate = totalApps ? Math.round((approvedApps / totalApps) * 100) : 0;
 
