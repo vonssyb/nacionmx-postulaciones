@@ -299,7 +299,14 @@ const Applications = () => {
                 <div style={styles.overlay} onClick={() => setSelectedApp(null)}>
                     <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
                         <div style={styles.modalHeader}>
-                            <h2>Detalles de Postulación</h2>
+                            <div>
+                                <h2 style={{ margin: 0, marginBottom: '0.5rem' }}>Detalles de Postulación</h2>
+                                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                    <span>📅 {new Date(selectedApp.created_at).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                    <span>⏱️ Hace {Math.ceil((Date.now() - new Date(selectedApp.created_at)) / (1000 * 60 * 60 * 24))} días</span>
+                                    <span>🎯 {selectedApp.type.toUpperCase()}</span>
+                                </div>
+                            </div>
                             <button onClick={() => setSelectedApp(null)} style={styles.closeBtn}>✕</button>
                         </div>
                         <div style={styles.modalContainer}>
