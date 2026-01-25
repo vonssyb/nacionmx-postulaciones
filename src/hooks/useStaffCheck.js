@@ -19,7 +19,8 @@ const ALLOWED_ROLE_IDS = [
     '1457558479287091417', // Staff de Entrenamiento
     '1458597791906533477', // Tercer Al Mando
     '1450242319121911848', // Key Mod
-    '1454985316292100226'  // Encargado Staff
+    '1454985316292100226',  // Encargado Staff
+    '1450242487422812251'   // Staff Separator (New)
 ];
 
 export const useStaffCheck = () => {
