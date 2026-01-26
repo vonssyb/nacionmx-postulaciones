@@ -72,6 +72,13 @@ const QuestionReview = ({ questions, scores, setScores, notes, setNotes }) => {
                                 {answer}
                             </div>
 
+                            {q.correct_answer && (
+                                <div style={styles.correctAnswerText}>
+                                    <span style={{ color: '#2ecc71', display: 'block', marginBottom: '4px' }}>✅ Referencia Correcta:</span>
+                                    {q.correct_answer}
+                                </div>
+                            )}
+
                             {/* Score Buttons */}
                             <div style={styles.scoreButtons}>
                                 <button
@@ -186,6 +193,16 @@ const styles = {
         marginBottom: '1rem',
         fontSize: '0.9rem',
         color: '#b0b0b0',
+        lineHeight: '1.6'
+    },
+    correctAnswerText: {
+        padding: '0.75rem',
+        background: 'rgba(46, 204, 113, 0.1)',
+        border: '1px solid rgba(46, 204, 113, 0.2)',
+        borderRadius: '6px',
+        marginBottom: '1rem',
+        fontSize: '0.9rem',
+        color: '#e0e0e0',
         lineHeight: '1.6'
     },
     scoreButtons: {

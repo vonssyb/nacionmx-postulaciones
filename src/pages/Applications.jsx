@@ -22,6 +22,15 @@ const Applications = () => {
     // Grading State
     const [reviewScores, setReviewScores] = useState({});
     const [reviewNotes, setReviewNotes] = useState({});
+    const [questionBank, setQuestionBank] = useState([]);
+
+    useEffect(() => {
+        const loadQuestions = async () => {
+            const { data } = await supabase.from('test_questions').select('question, correct_answer');
+            if (data) setQuestionBank(data);
+        };
+        loadQuestions();
+    }, []);
 
     useEffect(() => {
         fetchApplications();
@@ -73,9 +82,30 @@ const Applications = () => {
         const newStatus = actionState === 'approve' ? 'approved' : 'rejected';
         const { data: { user } } = await supabase.auth.getUser();
 
+        // Get Staff Name from Metadata
+        const staffName = user?.user_metadata?.full_name ||
+            user?.user_metadata?.name ||
+            user?.user_metadata?.user_name ||
+            user?.email?.split('@')[0] ||
+            'Staff';
+
         // Calculate score summary if mapped
         const totalScore = Object.values(reviewScores).reduce((acc, s) => acc + (s === 'correct' ? 1 : s === 'partial' ? 0.5 : 0), 0);
-        const maxScore = Object.keys(reviewScores).length; // Or total possible questions if we knew content length
+        const maxScore = Object.keys(reviewScores).length;
+
+        let finalNotes = notes;
+        // Prefix grading score to notes logic check passed
+
+        // ... (existing logic preservation, only updating processed_by line effectively below in full block replace if needed, but here targeted)
+        // Wait, replace tool needs contiguous context. I need to capture the 'processed_by' line in updateData object.
+
+        // Actually, let's target the separate blocks.
+        // Block 1: The 'updateData' construction (Lines 74-92)
+        // Block 2: The render of Discord ID (Line 319)
+
+        // Let's do Block 1 first.
+        // Can't do multiple unrelated blocks in one replace if non-contiguous.
+        // I will do Block 1 (handleUpdateStatus) first.
         const pct = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : 0;
 
         let finalNotes = notes;
@@ -87,7 +117,7 @@ const Applications = () => {
             status: newStatus,
             internal_notes: finalNotes,
             rejection_reason: actionState === 'reject' ? reason : null,
-            processed_by: user?.email || 'Admin',
+            processed_by: staffName, // Changed from email
             processed_at: new Date().toISOString()
         };
 
@@ -316,7 +346,7 @@ const Applications = () => {
                                 <div style={styles.detailSection}>
                                     <h3>Información Personal</h3>
                                     <p><strong>Nombre:</strong> {selectedApp.applicant_username}</p>
-                                    <p><strong>Discord ID:</strong> {selectedApp.applicant_discord_id}</p>
+                                    <p><strong>Discord ID:</strong> {selectedApp.discord_id || selectedApp.applicant_discord_id}</p>
                                     <p><strong>Estado:</strong> {getStatusBadge(selectedApp.status)}</p>
                                     {selectedApp.processed_by && <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Procesado por: {selectedApp.processed_by}</p>}
                                 </div>
@@ -398,7 +428,12 @@ const Applications = () => {
                                                                 <div>
                                                                     <h4 style={styles.subHeader}>Test de Conocimiento</h4>
                                                                     <QuestionReview
-                                                                        questions={parsedQuestions}
+                                                                        questions={parsedQuestions.map(q => ({
+                                                                            ...q,
+                                                                            correct_answer: questionBank.find(qb =>
+                                                                                qb.question.trim() === (q.question || q.pregunta).trim()
+                                                                            )?.correct_answer
+                                                                        }))}
                                                                         scores={reviewScores}
                                                                         setScores={setReviewScores}
                                                                         notes={reviewNotes}
@@ -423,7 +458,12 @@ const Applications = () => {
                                                             <p style={{ whiteSpace: 'pre-wrap', marginBottom: '2rem' }}>{textContent.split('RESPUESTAS TEST STAFF:')[0]}</p>
                                                             <h4 style={styles.subHeader}>Test de Conocimiento ({parsedQuestions.length} preguntas)</h4>
                                                             <QuestionReview
-                                                                questions={parsedQuestions}
+                                                                questions={parsedQuestions.map(q => ({
+                                                                    ...q,
+                                                                    correct_answer: questionBank.find(qb =>
+                                                                        qb.question.trim() === (q.question || q.pregunta).trim()
+                                                                    )?.correct_answer
+                                                                }))}
                                                                 scores={reviewScores}
                                                                 setScores={setReviewScores}
                                                                 notes={reviewNotes}
