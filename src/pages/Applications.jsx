@@ -93,19 +93,6 @@ const Applications = () => {
         const totalScore = Object.values(reviewScores).reduce((acc, s) => acc + (s === 'correct' ? 1 : s === 'partial' ? 0.5 : 0), 0);
         const maxScore = Object.keys(reviewScores).length;
 
-        let finalNotes = notes;
-        // Prefix grading score to notes logic check passed
-
-        // ... (existing logic preservation, only updating processed_by line effectively below in full block replace if needed, but here targeted)
-        // Wait, replace tool needs contiguous context. I need to capture the 'processed_by' line in updateData object.
-
-        // Actually, let's target the separate blocks.
-        // Block 1: The 'updateData' construction (Lines 74-92)
-        // Block 2: The render of Discord ID (Line 319)
-
-        // Let's do Block 1 first.
-        // Can't do multiple unrelated blocks in one replace if non-contiguous.
-        // I will do Block 1 (handleUpdateStatus) first.
         const pct = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : 0;
 
         let finalNotes = notes;
